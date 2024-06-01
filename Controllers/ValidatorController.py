@@ -1,5 +1,7 @@
 import json
 import datetime
+import os
+import requests
 
 #verificação de saldo da conta
 def verify_balance(balance, value, tax):
@@ -54,6 +56,16 @@ data = json.dumps(data)
 Validator(data)
 
 def register_validator():
-    pass
+    data = {"account_balance":3000}
+    
+    url = 'url do seletor'
+    response = requests.post(url, json=data)
+    
+    if response['response'] == 200:
+        os.environ['VALIDATOR_ID'] = response['validator_id']
+        print(response['message'])
+    else:
+        print(response['message'])
+    
 
 
