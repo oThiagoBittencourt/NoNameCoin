@@ -20,7 +20,6 @@ def verify_transaction_time(transaction_time, last_transaction_time):
         return 2
     return 1
 
-
 def Validator(data):
     #transforma o JSON em dicionario para trabalhar melhor com as variaveis
     data = json.loads(data)
@@ -31,8 +30,6 @@ def Validator(data):
     #verifica se todas as validações foram concluidas com exito
     if(status_balance == 2 or status_transaction_time == 2):
         return 2
-    
-
 
 # JSON HIPOTÉTICO
 
@@ -57,8 +54,8 @@ Validator(data)
 
 def register_validator():
     data = {
-        'validator_id' : 1,
-        'validator_balance' : 3000}
+        "validator_id" : 1,
+        "validator_balance" : 30.00}
     
     url = 'http://localhost:5000/selector/register'
     response = requests.post(url, json=data)
