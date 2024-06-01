@@ -56,16 +56,18 @@ data = json.dumps(data)
 Validator(data)
 
 def register_validator():
-    data = {"account_balance":3000}
+    data = {
+        'validator_id' : 1,
+        'validator_balance' : 3000}
     
-    url = 'url do seletor'
+    url = 'http://localhost:5000/selector/register'
     response = requests.post(url, json=data)
     
-    if response['response'] == 200:
-        os.environ['VALIDATOR_ID'] = response['validator_id']
-        print(response['message'])
+    if response.status_code == 200:
+        os.environ['access_token'] = response['access_token']
+        print()
     else:
-        print(response['message'])
+        print(f'{response.status_code} - {response['msg']}')
     
 
 
