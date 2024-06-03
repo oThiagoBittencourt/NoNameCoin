@@ -2,6 +2,7 @@ import json
 import datetime
 import os
 import requests
+import connector
 
 #verificação de saldo da conta
 def verify_balance(balance, value, tax):
@@ -51,16 +52,3 @@ data = json.dumps(data)
 
 #chama a função do validador
 Validator(data)
-
-def register_validator():
-    data = {
-        "validator_id" : "16",
-        "validator_balance" : 30.00}
-    
-    url = 'http://localhost:5000/seletor/register'
-    response = requests.post(url, json=data)
-    
-    if response.status_code == 200:
-        os.environ['access_token'] = response.json().get('access_token')
-    else:
-        print(f'{response.status_code}')
