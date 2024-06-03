@@ -1,4 +1,5 @@
 from Controller.DBController import Database
+from Controller import Controller
 from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 import base64
@@ -13,23 +14,68 @@ jwt = JWTManager(app)
 
 # Rota de login
 @app.route('/seletor/register', methods=['POST'])
-def login():
-    if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), 400
+def register():
+    try:
+        if not request.is_json:
+            return jsonify({"msg": "Missing JSON in request"}), 400
 
-    validator_id = request.json.get('validator_id', None)
-    validator_balance = request.json.get('validator_balance', None)
-    client_ip = request.remote_addr
-    client_port = request.environ.get('REMOTE_PORT')
+        validator_user = request.json.get('validator_user', None)
+        validator_password = request.json.get('validator_password', None)
+        validator_balance = request.json.get('validator_balance', None)
 
-    if not validator_id or not validator_balance:
-        return jsonify({"msg": "Missing Variables"}), 400
+        if not validator_user or not validator_password or not validator_balance:
+            return jsonify({"msg": "Missing Variables"}), 400
+            
+        if not db.register_validator(user=validator_user, password=validator_password, balance=validator_balance):
+            return jsonify({"msg": "Already_used_user"}), 400
         
-    if not db.insert_validator(id=validator_id, ip=client_ip, port=client_port, balance=validator_balance):
-        return jsonify({"msg": "Already_used_id"}), 400
+        return jsonify({"msg": "Successfully_Registered"}), 200
+    except:
+        return jsonify({"msg": "Error!"}), 400
 
-    access_token = create_access_token(identity=validator_id)
-    return jsonify(access_token=access_token), 200
+@app.route('/seletor/connect', methods=['POST'])
+def connect():
+    try:
+        if not request.is_json:
+            return jsonify({"msg": "Missing JSON in request"}), 400
+
+        validator_user = request.json.get('validator_user', None)
+        validator_password = request.json.get('validator_password', None)
+        client_ip = request.remote_addr
+        client_port = request.environ.get('REMOTE_PORT')
+
+        if not validator_user or not validator_password:
+            return jsonify({"msg": "Missing Variables"}), 400
+            
+        if not db.connect_validator(user=validator_user, password=validator_password, ip=client_ip, port=client_port):
+            return jsonify({"msg": "Connection_Error"}), 400
+
+        access_token = create_access_token(identity=validator_user)
+        return jsonify(access_token=access_token), 200
+    except:
+        return jsonify({"msg": "Error!"}), 400
+
+@app.route('/seletor/transaction', methods=['POST'])
+def transaction():
+    try:
+        if not request.is_json:
+            return jsonify({"msg": "Missing JSON in request"}), 400
+        
+        transaction_value = request.json.get('transaction_value', None)
+        transaction_sender_balance = request.json.get('transaction_sender_balance', None)
+        transaction_time = request.json.get('transaction_time', None)
+
+        if not transaction_value or not transaction_sender_balance or not transaction_time:
+            return jsonify({"msg": "Missing Variables"}), 400
+        
+        response = Controller.Transaction(transaction_value, transaction_sender_balance, transaction_time)
+
+        return jsonify({"response": response}), 200
+    except:
+        return jsonify({"msg": "Error!"}), 400
+
+##################################################################################################################
+
 # Rota protegida
 @app.route('/protected', methods=['GET'])
 @jwt_required()
