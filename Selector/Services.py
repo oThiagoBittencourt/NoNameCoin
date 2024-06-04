@@ -105,13 +105,5 @@ def transaction():
     except:
         return jsonify({"msg": "Error!"}), 400
 
-# Rota protegida
-@app.route('/protected', methods=['GET'])
-@jwt_required()
-def protected():
-    # Obter a identidade do usuário atual (neste caso, o nome de usuário)
-    current_user = get_jwt_identity()
-    return jsonify(logged_in_as=current_user), 200
-
 if __name__ == '__main__':
     app.run()

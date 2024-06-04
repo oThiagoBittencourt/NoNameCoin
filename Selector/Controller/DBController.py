@@ -1,5 +1,4 @@
 from tinydb import TinyDB, Query
-from time import time
 
 class ValidatorDB:
     def __init__(self, db_path='Selector/TinyDB/validatorDB.json'):
