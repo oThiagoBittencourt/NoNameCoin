@@ -1,4 +1,4 @@
-from Controller.DBController import ValidatorDB, transactionsDB
+from Controller.DBController import ValidatorDB
 from Controller import Controller
 from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
@@ -31,7 +31,7 @@ def register():
             return jsonify({"msg": "Missing Variables"}), 400
             
         if not db.register_validator(user=validator_user, password=validator_password, balance=validator_balance):
-            return jsonify({"msg": "Already_used_user"}), 400
+            return jsonify({"msg": "Already_used_user"}), 409
         
         return jsonify({"msg": "Successfully_Registered"}), 200
     except:
@@ -52,7 +52,7 @@ def connect():
             return jsonify({"msg": "Missing Variables"}), 400
             
         if not db.connect_validator(user=validator_user, password=validator_password, ip=client_ip, port=client_port):
-            return jsonify({"msg": "Connection_Error"}), 400
+            return jsonify({"msg": "Connection_Error"}), 401
 
         access_token = create_access_token(identity=validator_user)
         return jsonify(access_token=access_token), 200

@@ -1,5 +1,4 @@
 from Controller.DBController import transactionsDB
-from Controller.DBController import transactionsDB
 import datetime
 
 def Transaction(value:float, sender_id:str, sender_balance:float, time:datetime):

@@ -17,7 +17,7 @@ class ValidatorDB:
         if validator:
             if validator[0]['password'] != password or validator[0]['status'] == 'banned':
                 return False
-            self.db.update({'ip': ip, 'port': port}, self.Validator.user == user)
+            self.db.update({'ip': ip, 'port': port, 'status': 'online'}, self.Validator.user == user)
             return True
         return False
     
