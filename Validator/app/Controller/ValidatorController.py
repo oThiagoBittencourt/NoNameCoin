@@ -1,7 +1,5 @@
 import json
 import datetime
-import os
-import requests
 
 #verificação de saldo da conta
 def verify_balance(balance, value, tax):
