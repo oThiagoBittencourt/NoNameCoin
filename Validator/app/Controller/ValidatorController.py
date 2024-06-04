@@ -28,6 +28,7 @@ def Validator(data):
     #verifica se todas as validações foram concluidas com exito
     if(status_balance == 2 or status_transaction_time == 2):
         return 2
+    return 1
 
 # JSON HIPOTÉTICO
 

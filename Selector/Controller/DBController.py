@@ -21,6 +21,11 @@ class ValidatorDB:
             return True
         return False
     
+    def get_all_validators_online(self):
+        results = self.db.search(self.Validator.status == 'online')
+        online_users = [record['user'] for record in results]
+        return online_users
+    
     def find_validator_by_id(self, user:str):
         return self.db.search(self.Validator.user == user)
     
