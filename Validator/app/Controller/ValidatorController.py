@@ -2,7 +2,6 @@ import json
 import datetime
 import os
 import requests
-import Validator.Controller.connector as connector
 
 #verificação de saldo da conta
 def verify_balance(balance, value, tax):

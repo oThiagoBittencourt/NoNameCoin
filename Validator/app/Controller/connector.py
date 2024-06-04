@@ -1,12 +1,10 @@
-import json
-import datetime
 import os
 import requests
 
 def register_validator(data):
-    
     url = 'http://localhost:5000/seletor/register'
     response = requests.post(url, json=data)
+    
     return response
 
 
@@ -20,4 +18,8 @@ def connect(data):
     else:
         print(f'{response.status_code}')
 
-    pass
+
+def time(data):
+    url = 'http://localhost:5000/seletor/time'
+    response = requests.post(url, json=data)
+    return response
