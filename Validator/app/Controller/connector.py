@@ -7,7 +7,6 @@ def register_validator(data):
     
     return response
 
-
 def connect(data):
     url = 'http://localhost:5000/seletor/connect'
     response = requests.post(url, json=data)
@@ -18,8 +17,15 @@ def connect(data):
     else:
         print(f'{response.status_code}')
 
-
 def time(data):
     url = 'http://localhost:5000/seletor/time'
     response = requests.post(url, json=data)
     return response
+
+def ratelimited(data):
+    url = 'http://localhost:5000/seletor/ratelimited'
+    response = requests.post(url, json=data)
+    if response.status_code == 200:
+        return 1
+    else:
+        return 2

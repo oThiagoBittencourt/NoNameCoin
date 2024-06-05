@@ -1,5 +1,6 @@
 import json
 import datetime
+import connector
 
 #verificação de saldo da conta
 def verify_balance(balance, value, tax):
@@ -18,6 +19,10 @@ def verify_transaction_time(transaction_time, last_transaction_time):
         return 2
     return 1
 
+def verify_ratelimited(user_id):
+    rate_limit = connector.ratelimited(user_id)
+    return rate_limit
+
 def Validator(data):
     #transforma o JSON em dicionario para trabalhar melhor com as variaveis
     data = json.loads(data)
@@ -26,27 +31,7 @@ def Validator(data):
     #chama a verificação do timestamp da transação
     status_transaction_time = verify_transaction_time(data['transaction_time'], data['last_transaction_time'])
     #verifica se todas as validações foram concluidas com exito
-    if(status_balance == 2 or status_transaction_time == 2):
+    status_ratelimited = verify_ratelimited(data['user_id'])
+    if(status_balance == 2 or status_transaction_time == 2 or status_ratelimited == 2):
         return 2
     return 1
-
-# JSON HIPOTÉTICO
-
-#colocando os valores em um dicionario
-transaction_time = datetime.datetime.now().timestamp()
-data =  { 
-    "validator_id": 0,
-    "id_account":1, 
-    "account_balance":3000, 
-    "value":300, 
-    "id_receiver":12, 
-    "transaction_time":transaction_time,
-    "last_transaction_time": 1213141.22,
-    "taxes": 5,
-    }
-
-#transformar dicionario em jsco
-data = json.dumps(data)
-
-#chama a função do validador
-Validator(data)
