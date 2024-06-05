@@ -1,6 +1,8 @@
+
 from flask import Flask
+from dateutil import parser
 import os
-from .Controller import connector
+from .Controller import connector, Utils
 from app import Services
 import time
 import threading
@@ -33,33 +35,35 @@ class App(Flask):
     def sync_time(self):
         while True:
             try:
-                response = connector.time()
+                response = connector.time(self.config.get('access_token'))
                 if response.status_code == 200:
-                    server_time = datetime.fromisoformat(response.json().get('time'))
-                    server_time = datetime.fromisoformat(server_time)
+                    server_time_str = response.json().get('time')
+                    server_time = datetime.fromisoformat(server_time_str)
                     local_time = server_time.astimezone(BRST)
-                    
-                    current_local_time = datetime.now(BRST)
-                    print(f"Horário local atual antes da mudança: {current_local_time}")
-                    
-                    # Imprime o horário recebido do servidor
-                    print(f"Horário recebido do servidor: {local_time}")
 
-                    # Simulando a mudança de horário imprimindo o novo horário
-                    print(f"Horário local atualizado para: {local_time}")
-                    
+                    dt = parser.parse(str(local_time))
+                    print(f"\nOld time:      {local_time}")
+                    print(dt)
+
+                    print(type(dt))
+                    new_time_struct = dt.timetuple()
+                    time.mktime(new_time_struct)
+                    print(datetime.now(BRST))
+                    Utils.update_server_time(local_time)
+
             except Exception as e:
-                print(f"Erro ao obter o horário do servidor: {e}")
-            
+                print(f"Error getting server time: {e}\n")
             time.sleep(60)
-    thread = threading.Thread(target=sync_time)
-    thread.daemon = True
-    thread.start()
 
+    def start_sync_time_thread(self):
+        thread = threading.Thread(target=self.sync_time)
+        thread.daemon = True
+        thread.start()
 
 def create_app():
     app = App(__name__)
     app.init_app()
+    app.start_sync_time_thread()
     return app
 
 

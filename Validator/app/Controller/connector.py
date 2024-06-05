@@ -19,7 +19,8 @@ def connect(data):
 
 def time(data):
     url = 'http://localhost:5000/seletor/time'
-    response = requests.post(url, json=data)
+    headers  = {'Authorization': f'Bearer {data}'}
+    response = requests.get(url, headers=headers)
     return response
 
 def ratelimited(data):
