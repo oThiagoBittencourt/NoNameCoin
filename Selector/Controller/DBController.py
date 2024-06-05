@@ -9,7 +9,7 @@ class ValidatorDB:
     def register_validator(self, user:str, password:str, balance:float):
         if (self.db.search(self.Validator.user == user)):
             return False
-        self.db.insert({'user': user, 'password': password, 'balance': balance, 'ip': None, 'port': None, 'flags': 0, 'bans': 0, 'status': 'offline'})
+        self.db.insert({'user': user, 'password': password, 'balance': balance, 'ip': None, 'port': None, 'flags': 0, 'bans': 0, 'sequence': 0 ,'status': 'offline'})
         return True
     
     def connect_validator(self, user:str, password:str, ip:str, port:int):
@@ -22,9 +22,9 @@ class ValidatorDB:
         return False
     
     def get_all_validators_online(self):
-        results = self.db.search(self.Validator.status == 'online')
-        online_users = [record['user'] for record in results]
-        return online_users
+        results = self.db.search((self.Validator.status == 'online') & (self.Validator.sequence < 5))
+        online_validators = {record['user']: {'balance': record['balance'], 'flags': record['flags']} for record in results}
+        return online_validators
     
     def find_validator_by_id(self, user:str):
         return self.db.search(self.Validator.user == user)

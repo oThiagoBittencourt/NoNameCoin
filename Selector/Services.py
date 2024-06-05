@@ -1,5 +1,5 @@
 from Controller.DBController import ValidatorDB
-from Controller import Controller
+from Selector.Controller import TransactionController
 from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import base64
@@ -76,7 +76,7 @@ def ratelimited():
     if not user_id:
         return jsonify({'error': 'user_id is required'}), 400
     
-    if Controller.is_rate_limited(user_id):
+    if TransactionController.is_rate_limited(user_id):
         return jsonify({'error': 'Too many requests'}), 429
     
     return jsonify({'status': 'request processed'}), 200
@@ -99,7 +99,7 @@ def transaction():
         if not transaction_sender_id or not transaction_value or not transaction_sender_balance or not transaction_time:
             return jsonify({"msg": "Missing Variables"}), 400
         
-        response = Controller.Transaction(transaction_value, transaction_sender_id, transaction_sender_balance, transaction_time)
+        response = TransactionController.Transaction(transaction_value, transaction_sender_id, transaction_sender_balance, transaction_time)
 
         return jsonify({"response": response}), 200
     except:
