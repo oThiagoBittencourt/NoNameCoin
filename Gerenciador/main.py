@@ -47,9 +47,8 @@ class Transacao(db.Model):
     status = db.Column(db.Integer, unique=False, nullable=False)
 
 
-#@app.before_first_request
-#def create_tables():
-#    db.create_all()
+def create_tables():
+    db.create_all()
 
 @app.route("/")
 def index():
@@ -210,6 +209,17 @@ def ListarTransacoes():
         transacoes = Transacao.query.all()
         return jsonify(transacoes)
 
+# Retorna todas as transações de um usuario específico <-- !!!
+@app.route('/transacoes/<int:remetente_id>', methods=['GET'])
+def TransacoesPorRemetente(remetente_id):
+    if request.method == 'GET':
+        transacoes = Transacao.query.filter_by(remetente=remetente_id).all()
+        if not transacoes:
+            return jsonify({"error": "Nenhuma transação encontrada para este remetente"}), 404
+        return jsonify([transacao.to_dict() for transacao in transacoes])
+    else:
+        return jsonify({"error": "Method Not Allowed"}), 405
+
 # Cria uma transação e envia ela pra pros seletores <-- !!!
 @app.route('/transacoes/<int:rem>/<int:reb>/<int:valor>', methods = ['POST'])
 def CriaTransacao(rem, reb, valor):
@@ -227,7 +237,7 @@ def CriaTransacao(rem, reb, valor):
     else:
         return jsonify(['Method Not Allowed'])
 
-# Retorna uma única transação. Serve para checar os horarios da transação posterior <-- !!!
+# Retorna todas as transações de um usuario pelo ID <-- !!!
 @app.route('/transacoes/<int:id>', methods = ['GET'])
 def UmaTransacao(id):
     if(request.method == 'GET'):

@@ -38,27 +38,20 @@ class ValidatorDB:
     def close(self):
         self.db.close()
 
+"""
 class transactionsDB:
-    def __init__(self, db_path='Selector/TinyDB/transactionsDB.json'):
-        self.db_path = db_path
-        self.db = TinyDB(self.db_path)
-        self.Transaction = Query()
-
     def get_user_requests(self, user_id):
-        """Retorna todas as solicitações do usuário."""
         return self.db.search(self.Transaction.user_id == user_id)
 
     def filter_recent_requests(self, user_requests, current_time, TIME_WINDOW):
-        """Filtra solicitações que estão dentro da janela de tempo."""
         return [req['timestamp'] for req in user_requests if current_time - req['timestamp'] < TIME_WINDOW]
 
     def update_user_requests(self, user_id, recent_requests, current_time):
-        """Atualiza o registro de solicitações do usuário no TinyDB."""
         self.db.remove(self.Transaction.user_id == user_id)
         for timestamp in recent_requests:
             self.db.insert({'user_id': user_id, 'timestamp': timestamp})
         self.db.insert({'user_id': user_id, 'timestamp': current_time})
 
     def add_user_request(self, user_id, current_time):
-        """Adiciona uma nova solicitação para o usuário."""
         self.db.insert({'user_id': user_id, 'timestamp': current_time})
+"""
