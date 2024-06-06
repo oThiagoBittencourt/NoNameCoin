@@ -29,8 +29,8 @@ def verify_transaction_time(transaction_time, last_transaction_time):
         return 2
     return 1
 
-def verify_ratelimited(user_id, ):
-    rate_limit = Connector.ratelimited({'user_id' : user_id}, os.environ.get('access_token'))
+def verify_ratelimited(user_id, time):
+    rate_limit = Connector.ratelimited({'user_id' : user_id, 'time' : time}, os.environ.get('access_token'))
     return rate_limit
 
 def Validator(data):
@@ -39,7 +39,7 @@ def Validator(data):
     #chama a verificação do timestamp da transação
     status_transaction_time = verify_transaction_time(data['transaction_time'], data['last_transaction_time'])
     #verifica se todas as validações foram concluidas com exito
-    status_ratelimited = verify_ratelimited(data['user_id'])
+    status_ratelimited = verify_ratelimited(data['user_id'], data['transaction_time'])
     if(status_balance == 2 or status_transaction_time == 2 or status_ratelimited == 2):
         return 2
     return 1

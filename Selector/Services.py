@@ -5,6 +5,7 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import base64
 import os
 import requests
+import datetime
 
 app = Flask(__name__)
 db = ValidatorDB()
@@ -74,11 +75,13 @@ def ratelimited():
             return jsonify({"msg": "Missing JSON in request"}), 400
 
     user_id = request.json.get('user_id')
+    time = request.json.get('time')
+    time = datetime.datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
 
-    if not user_id:
+    if not user_id or not time:
         return jsonify({'error': 'user_id is required'}), 400
     
-    if TransactionController.is_rate_limited(user_id, None):
+    if TransactionController.is_rate_limited(user_id, time):
         return jsonify({'error': 'Too many requests'}), 429
     
     return jsonify({'status': 'request processed'}), 200
