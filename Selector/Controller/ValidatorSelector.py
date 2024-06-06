@@ -13,7 +13,7 @@ def select_validator():
         ValidatorDB.update_sequence(validator)
         # Definir Status como "working"
         ValidatorDB.change_status(validator, "working")
-        pass
+    return selected_validators
 
 def choice_validators(validators, num_selections):
     if num_selections > len(validators):
