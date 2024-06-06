@@ -55,12 +55,18 @@ class Transacao(db.Model):
 def index():
     return render_template('api.html')
 
+##################
+#   -Clientes-   #
+##################
+
+# Volta todos os clientes
 @app.route('/cliente', methods = ['GET'])
 def ListarCliente():
     if(request.method == 'GET'):
         clientes = Cliente.query.all()
         return jsonify(clientes)  
 
+# Inserir cliente no BD
 @app.route('/cliente/<string:nome>/<string:senha>/<int:qtdMoedas>', methods = ['POST'])
 def InserirCliente(nome, senha, qtdMoedas):
     if request.method=='POST' and nome != '' and senha != '' and qtdMoedas != '':
@@ -71,6 +77,7 @@ def InserirCliente(nome, senha, qtdMoedas):
     else:
         return jsonify(['Method Not Allowed'])
 
+# Volta um cliente pelo ID
 @app.route('/cliente/<int:id>', methods = ['GET'])
 def UmCliente(id):
     if(request.method == 'GET'):
@@ -79,12 +86,11 @@ def UmCliente(id):
     else:
         return jsonify(['Method Not Allowed'])
 
+# Atualiza informações sobre o cliente
 @app.route('/cliente/<int:id>/<int:qtdMoedas>', methods=["POST"])
 def EditarCliente(id, qtdMoedas):
     if request.method=='POST':
         try:
-            varId = id
-            varqtdMoedas = qtdMoedas
             cliente = Cliente.query.filter_by(id=id).first()
             db.session.commit()
             cliente.qtdMoedas = qtdMoedas
@@ -98,6 +104,7 @@ def EditarCliente(id, qtdMoedas):
     else:
         return jsonify(['Method Not Allowed'])
 
+# Apaga cliente pelo ID
 @app.route('/cliente/<int:id>', methods = ['DELETE'])
 def ApagarCliente(id):
     if(request.method == 'DELETE'):
@@ -113,12 +120,18 @@ def ApagarCliente(id):
     else:
         return jsonify(['Method Not Allowed'])
 
+#################
+#   -Seletor-   #
+#################
+
+# Devolve todos os seletores
 @app.route('/seletor', methods = ['GET'])
 def ListarSeletor():
     if(request.method == 'GET'):
         produtos = Seletor.query.all()
-        return jsonify(produtos)  
+        return jsonify(produtos)
 
+# Registra um seletor <-- !!!
 @app.route('/seletor/<string:nome>/<string:ip>', methods = ['POST'])
 def InserirSeletor(nome, ip):
     if request.method=='POST' and nome != '' and ip != '':
@@ -129,6 +142,7 @@ def InserirSeletor(nome, ip):
     else:
         return jsonify(['Method Not Allowed'])
 
+# Devolve um seletor pelo ID
 @app.route('/seletor/<int:id>', methods = ['GET'])
 def UmSeletor(id):
     if(request.method == 'GET'):
@@ -137,6 +151,7 @@ def UmSeletor(id):
     else:
         return jsonify(['Method Not Allowed'])
 
+# Atualizar dados de um seletor
 @app.route('/seletor/<int:id>/<string:nome>/<string:ip>', methods=["POST"])
 def EditarSeletor(id, nome, ip):
     if request.method=='POST':
@@ -157,6 +172,7 @@ def EditarSeletor(id, nome, ip):
     else:
         return jsonify(['Method Not Allowed'])
 
+# Delete um seletor
 @app.route('/seletor/<int:id>', methods = ['DELETE'])
 def ApagarSeletor(id):
     if(request.method == 'DELETE'):
@@ -172,19 +188,29 @@ def ApagarSeletor(id):
     else:
         return jsonify(['Method Not Allowed'])
 
+##############
+#   -Hora-   #
+##############
+
+# Devolve a hora <-- !!!
 @app.route('/hora', methods = ['GET'])
 def horario():
     if(request.method == 'GET'):
         objeto = datetime.now()
         return jsonify(objeto)
-		
+
+####################
+#   -Transações-   #
+####################
+
+# Retorna todas as transações <-- !!!
 @app.route('/transacoes', methods = ['GET'])
 def ListarTransacoes():
     if(request.method == 'GET'):
         transacoes = Transacao.query.all()
         return jsonify(transacoes)
-    
-    
+
+# Cria uma transação e envia ela pra pros seletores <-- !!!
 @app.route('/transacoes/<int:rem>/<int:reb>/<int:valor>', methods = ['POST'])
 def CriaTransacao(rem, reb, valor):
     if request.method=='POST':
@@ -201,6 +227,7 @@ def CriaTransacao(rem, reb, valor):
     else:
         return jsonify(['Method Not Allowed'])
 
+# Retorna uma única transação. Serve para checar os horarios da transação posterior <-- !!!
 @app.route('/transacoes/<int:id>', methods = ['GET'])
 def UmaTransacao(id):
     if(request.method == 'GET'):
@@ -209,6 +236,7 @@ def UmaTransacao(id):
     else:
         return jsonify(['Method Not Allowed'])
 
+# Atualiza os dados de uma transação pelo ID <-- !!!
 @app.route('/transactions/<int:id>/<int:status>', methods=["POST"])
 def EditaTransacao(id, status):
     if request.method=='POST':

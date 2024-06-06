@@ -7,7 +7,6 @@ x = 2000
 lock = threading.Lock()
 semaphore = threading.BoundedSemaphore(value=5)
 
-
 def acesso(numero):
     print(numero, " tentando acesso")
     semaphore.acquire()
@@ -56,11 +55,8 @@ def carrinho(velocidade,nome):
         distancia += velocidade
         time.sleep(0.3)
 
-
-
 carrinho1 = threading.Thread(target=carrinho,args=[1.1,"Ed"])
 carrinho2 = threading.Thread(target=carrinho,args=[1.2,"Paulo"])
-
 
 carrinho1.start()
 carrinho2.start()
