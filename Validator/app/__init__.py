@@ -11,6 +11,7 @@ class App(Flask):
 
     def __init__(self, *args, **kwargs):
         super(App, self).__init__(*args, **kwargs)
+        self.url = 'http://localhost:5002'
 
     def init_app(self):
         data = {
@@ -19,10 +20,10 @@ class App(Flask):
             "validator_balance" : 100000.00
         }
             
-        response_register = Connector.register_validator(data)
+        response_register = Connector.register_validator(data,self.url)
         
         if(response_register.status_code == 200 or response_register.status_code == 409):    
-            response_connect = Connector.connect(data)
+            response_connect = Connector.connect(data, self.url)
             
             if(response_connect.status_code == 200 or response_connect.status_code == 409):
                 os.environ['access_token'] = response_connect.json().get('access_token')
