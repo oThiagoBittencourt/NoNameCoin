@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from dataclasses import dataclass
 from datetime import date, datetime
+import json
   
 app = Flask(__name__)
 
@@ -37,13 +38,14 @@ class Transacao(db.Model):
     remetente: int
     recebedor: int
     valor: int
+    horario: datetime
     status: int
     
     id = db.Column(db.Integer, primary_key=True)
     remetente = db.Column(db.Integer, unique=False, nullable=False)
     recebedor = db.Column(db.Integer, unique=False, nullable=False)
     valor = db.Column(db.Integer, unique=False, nullable=False)
-    horario = db.Column(db.DateTime, unique=False, nullable=False)
+    horario = db.Column(db.DateTime, unique=False, nullable=False, default=lambda: datetime.now())
     status = db.Column(db.Integer, unique=False, nullable=False)
 
 
@@ -222,19 +224,28 @@ def TransacoesPorRemetente(remetente_id):
         return jsonify({"error": "Method Not Allowed"}), 405
 
 # Cria uma transação e envia ela pra pros seletores <-- !!!
-@app.route('/transacoes/<int:rem>/<int:reb>/<int:valor>', methods = ['POST'])
-def CriaTransacao(rem, reb, valor):
+@app.route('/transacoes/<int:remetente>/<int:recebedor>/<int:valor>', methods = ['POST'])
+def CriaTransacao(remetente, recebedor, valor):
     if request.method=='POST':
-        objeto = Transacao(remetente=rem, recebedor=reb,valor=valor,status=0,horario=datetime.now())
+        objeto = Transacao(remetente=remetente, recebedor=recebedor,valor=valor,status=0)
         db.session.add(objeto)
         db.session.commit()
-		
+        
+        objeto_json = {
+            'id': objeto.id,
+            'remetente': objeto.remetente,
+            'recebedor': objeto.recebedor,
+            'valor': objeto.valor,
+            'horario': objeto.horario,
+            'status': objeto.status
+        }
+  
         seletores = Seletor.query.all()
         for i in seletores:
             url = seletores[i].ip + '/transacao/'
-            request.post(url, data=jsonify(object))
+            request.post(url, data=jsonify(objeto_json))
 		
-        return jsonify(objeto)
+        return jsonify(objeto_json)
     else:
         return jsonify(['Method Not Allowed'])
 
