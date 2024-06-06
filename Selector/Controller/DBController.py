@@ -26,6 +26,18 @@ class ValidatorDB:
         online_validators = {record['user']: {'balance': record['balance'], 'flags': record['flags']} for record in results}
         return online_validators
     
+    def change_status(self, user:str, status:str):
+        self.db.update({'status': status}, self.Validator.user == user)
+    
+    def update_sequence(self, user:str, RESET_MODE=False):
+        result = self.db.search(self.Validator.user == user)
+        if result:
+            if RESET_MODE:
+                self.db.update({'sequence': 0}, self.Validator.user == user)
+                return
+            sequence = result[0]['sequence']
+            self.db.update({'sequence': sequence + 1}, self.Validator.user == user)
+
     def find_validator_by_id(self, user:str):
         return self.db.search(self.Validator.user == user)
     

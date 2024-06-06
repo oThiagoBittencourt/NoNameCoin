@@ -10,7 +10,9 @@ def select_validator():
         pass
     for validator in selected_validators:
         # Adicionar Sequencia
+        ValidatorDB.update_sequence(validator)
         # Definir Status como "working"
+        ValidatorDB.change_status(validator, "working")
         pass
 
 def choice_validators(validators, num_selections):
