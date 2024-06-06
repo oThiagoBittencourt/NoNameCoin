@@ -15,7 +15,7 @@ def gerar_string_aleatoria(tamanho=8):
 def gerar_cliente_aleatorio():
     nome = gerar_string_aleatoria()
     senha = gerar_string_aleatoria(6)
-    qtdMoedas = random.randint(50, 300)
+    qtdMoedas = random.randint(0, 300)
     return {
         'nome': nome,
         'senha': senha,

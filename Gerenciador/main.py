@@ -69,8 +69,7 @@ def ListarCliente():
 # Inserir cliente no BD
 @app.route('/cliente/<string:nome>/<string:senha>/<int:qtdMoeda>', methods = ['POST'])
 def InserirCliente(nome, senha, qtdMoeda):
-    if request.method=='POST' and nome != '' and senha != '' and qtdMoeda > 49:
-        print('aaaaaaaaaaaaaaaaaaaaaaaaaa')
+    if request.method=='POST' and nome != '' and senha != '' and qtdMoeda >= 0:
         objeto = Cliente(nome=nome, senha=senha, qtdMoeda=qtdMoeda)
         db.session.add(objeto)
         db.session.commit()
