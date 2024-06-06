@@ -1,19 +1,36 @@
 from Controller.DBController import ValidatorDB
 import random
+import threading
+import time
 
 def select_validator():
     validators_online = ValidatorDB.get_all_validators_online()
     validators_percentage = calculate_percentage(validators_online)
     selected_validators = choice_validators(validators_percentage, 3)
+    result_container = {}
     if not selected_validators:
-        # Precisa aguardar 1 minuto, e caso nn consiga rodar, volta 0
-        pass
+        thread = threading.Thread(target=choice_validators_thread, args=(3, 60, result_container, validators_percentage))
+        thread.start()
+        thread.join()
+        selected_validators = result_container.get('selected_users', [])
     for validator in selected_validators:
         # Adicionar Sequencia
         ValidatorDB.update_sequence(validator)
         # Definir Status como "working"
         ValidatorDB.change_status(validator, "working")
     return selected_validators
+
+def choice_validators_thread(num_selections, timeout, result_container, validators_percentage):
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        selected_users = choice_validators(validators_percentage, num_selections)
+        if selected_users:
+            result_container['selected_users'] = selected_users
+            return
+        if time.time() - start_time + 10 >= timeout :
+            return
+        time.sleep(10)
+    result_container['selected_users'] = []
 
 def choice_validators(validators, num_selections):
     if num_selections > len(validators):
