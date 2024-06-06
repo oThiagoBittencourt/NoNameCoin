@@ -15,10 +15,10 @@ migrate = Migrate(app, db)
 class Cliente(db.Model):
     id: int
     nome: str
-    senha: int
+    senha: str
     qtdMoeda: int
     
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nome = db.Column(db.String(20), unique=False, nullable=False)
     senha = db.Column(db.String(20), unique=False, nullable=False)
     qtdMoeda = db.Column(db.Integer, unique=False, nullable=False)
@@ -47,8 +47,9 @@ class Transacao(db.Model):
     status = db.Column(db.Integer, unique=False, nullable=False)
 
 
-def create_tables():
-    db.create_all()
+#@app.before_first_request
+#def create_tables():
+#    db.create_all()
 
 @app.route("/")
 def index():
@@ -66,15 +67,16 @@ def ListarCliente():
         return jsonify(clientes)  
 
 # Inserir cliente no BD
-@app.route('/cliente/<string:nome>/<string:senha>/<int:qtdMoedas>', methods = ['POST'])
-def InserirCliente(nome, senha, qtdMoedas):
-    if request.method=='POST' and nome != '' and senha != '' and qtdMoedas != '':
-        objeto = Cliente(nome=nome, senha=senha, qtdMoedas=qtdMoedas)
+@app.route('/cliente/<string:nome>/<string:senha>/<int:qtdMoeda>', methods = ['POST'])
+def InserirCliente(nome, senha, qtdMoeda):
+    if request.method=='POST' and nome != '' and senha != '' and qtdMoeda > 49:
+        print('aaaaaaaaaaaaaaaaaaaaaaaaaa')
+        objeto = Cliente(nome=nome, senha=senha, qtdMoeda=qtdMoeda)
         db.session.add(objeto)
         db.session.commit()
         return jsonify(objeto)
     else:
-        return jsonify(['Method Not Allowed'])
+        return jsonify(['Method Not Allowed']), 400
 
 # Volta um cliente pelo ID
 @app.route('/cliente/<int:id>', methods = ['GET'])
@@ -86,13 +88,13 @@ def UmCliente(id):
         return jsonify(['Method Not Allowed'])
 
 # Atualiza informações sobre o cliente
-@app.route('/cliente/<int:id>/<int:qtdMoedas>', methods=["POST"])
-def EditarCliente(id, qtdMoedas):
+@app.route('/cliente/<int:id>/<int:qtdMoeda>', methods=["POST"])
+def EditarCliente(id, qtdMoeda):
     if request.method=='POST':
         try:
             cliente = Cliente.query.filter_by(id=id).first()
             db.session.commit()
-            cliente.qtdMoedas = qtdMoedas
+            cliente.qtdMoeda = qtdMoeda
             db.session.commit()
             return jsonify(cliente)
         except Exception as e:
