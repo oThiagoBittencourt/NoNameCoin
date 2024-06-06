@@ -1,8 +1,33 @@
 from Controller.DBController import ValidatorDB
+import random
 
 def select_validator():
     validators_online = ValidatorDB.get_all_validators_online()
     validators_percentage = calculate_percentage(validators_online)
+    selected_validators = choice_validators(validators_percentage, 3)
+    if not selected_validators:
+        # Precisa aguardar 1 minuto, e caso nn consiga rodar, volta 0
+        pass
+    for validator in selected_validators:
+        # Adicionar Sequencia
+        # Definir Status como "working"
+        pass
+
+def choice_validators(validators, num_selections):
+    if num_selections > len(validators):
+        return []
+    
+    names = list(validators.keys())
+    weights = list(validators.values())
+
+    # Ensures that the selected users are unique
+    selected = set()
+    while len(selected) < num_selections:
+        selected.update(random.choices(names, weights=weights, k=num_selections))
+        if len(selected) > num_selections:
+            selected = set(list(selected)[:num_selections])
+
+    return list(selected)
 
 def calculate_percentage(data, limit=20, min_percentage=0.1):
     # Calculate the total balance

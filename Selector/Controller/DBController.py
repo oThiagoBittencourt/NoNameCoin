@@ -9,7 +9,7 @@ class ValidatorDB:
     def register_validator(self, user:str, password:str, balance:float):
         if (self.db.search(self.Validator.user == user)):
             return False
-        self.db.insert({'user': user, 'password': password, 'balance': balance, 'ip': None, 'port': None, 'flags': 0, 'bans': 0, 'sequence': 0 ,'status': 'offline'})
+        self.db.insert({'user': user, 'password': password, 'balance': balance, 'ip': None, 'port': None, 'flags': 0, 'bans': 0, 'sequence': 0, 'transactions': 0, 'status': 'offline'})
         return True
     
     def connect_validator(self, user:str, password:str, ip:str, port:int):
