@@ -1,9 +1,10 @@
 from Controller.DBController import ValidatorDB
-from Selector.Controller import TransactionController
+from Controller import TransactionController
 from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import base64
 import os
+import requests
 
 app = Flask(__name__)
 db = ValidatorDB()
@@ -62,21 +63,22 @@ def connect():
 @app.route('/seletor/time', methods=['GET'])
 @jwt_required()
 def time():
-    # Pegar horario do banco
-    pass
+    url = 'http://127.0.0.1:5002/hora'
+    response = requests.get(url)
+    return jsonify({"time": response.json()}), 200
 
 @app.route('/seletor/ratelimited', methods=['GET'])
 @jwt_required()
 def ratelimited():
     if not request.is_json:
             return jsonify({"msg": "Missing JSON in request"}), 400
-    
-    user_id = request.json.get('user_id', None)
+
+    user_id = request.json.get('user_id')
 
     if not user_id:
         return jsonify({'error': 'user_id is required'}), 400
     
-    if TransactionController.is_rate_limited(user_id):
+    if TransactionController.is_rate_limited(user_id, None):
         return jsonify({'error': 'Too many requests'}), 429
     
     return jsonify({'status': 'request processed'}), 200

@@ -23,9 +23,10 @@ def time(data):
     response = requests.get(url, headers=headers)
     return response
 
-def ratelimited(data):
+def ratelimited(data, token):
     url = 'http://localhost:5000/seletor/ratelimited'
-    response = requests.post(url, json=data)
+    headers  = {'Authorization': f'Bearer {token}'}
+    response = requests.get(url, json=data, headers=headers)
     if response.status_code == 200:
         return 1
     else:

@@ -1,5 +1,5 @@
-from Controller.DBController import transactionsDB
-from ValidatorSelector import select_validator
+from .DBController import transactionsDB
+from Controller.ValidatorSelector import select_validator
 import datetime
 import requests
 

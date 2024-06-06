@@ -1,4 +1,4 @@
-from DBController import ValidatorDB
+from Controller.DBController import ValidatorDB
 
 def select_validator():
     validators_online = ValidatorDB.get_all_validators_online()
