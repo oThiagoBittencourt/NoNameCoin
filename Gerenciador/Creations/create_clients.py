@@ -4,7 +4,7 @@ import random
 import string
 
 # Define a URL do endpoint
-url = 'http://localhost:5002/cliente'
+url = 'http://localhost:5000/cliente'
 
 # Função para gerar uma string aleatória
 def gerar_string_aleatoria(tamanho=8):

@@ -4,8 +4,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from dataclasses import dataclass
 from datetime import date, datetime
-import json
-  
+import requests
+
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
@@ -17,13 +17,14 @@ class Cliente(db.Model):
     id: int
     nome: str
     senha: str
-    qtdMoeda: int
-    
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    qtdMoeda: float
+
+    id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(20), unique=False, nullable=False)
     senha = db.Column(db.String(20), unique=False, nullable=False)
-    qtdMoeda = db.Column(db.Integer, unique=False, nullable=False)
+    qtdMoeda = db.Column(db.Float, unique=False, nullable=False)
 
+@dataclass
 class Seletor(db.Model):
     id: int
     nome: str
@@ -32,30 +33,29 @@ class Seletor(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(20), unique=False, nullable=False)
     ip = db.Column(db.String(15), unique=False, nullable=False)
-    
+
+@dataclass
 class Transacao(db.Model):
     id: int
     remetente: int
     recebedor: int
-    valor: int
-    horario: datetime
+    valor: float
+    horario : datetime
     status: int
     
     id = db.Column(db.Integer, primary_key=True)
     remetente = db.Column(db.Integer, unique=False, nullable=False)
     recebedor = db.Column(db.Integer, unique=False, nullable=False)
-    valor = db.Column(db.Integer, unique=False, nullable=False)
+    valor = db.Column(db.Float, unique=False, nullable=False)
     horario = db.Column(db.DateTime, unique=False, nullable=False, default=lambda: datetime.now())
     status = db.Column(db.Integer, unique=False, nullable=False)
 
-
-#@app.before_first_request
-#def create_tables():
-#    db.create_all()
+with app.app_context():
+    db.create_all()
 
 @app.route("/")
 def index():
-    return render_template('api.html')
+    return jsonify(['API sem interface do banco!'])
 
 ##################
 #   -Clientes-   #
@@ -69,9 +69,9 @@ def ListarCliente():
         return jsonify(clientes)  
 
 # Inserir cliente no BD
-@app.route('/cliente/<string:nome>/<string:senha>/<int:qtdMoeda>', methods = ['POST'])
+@app.route('/cliente/<string:nome>/<string:senha>/<float:qtdMoeda>', methods = ['POST'])
 def InserirCliente(nome, senha, qtdMoeda):
-    if request.method=='POST' and nome != '' and senha != '' and qtdMoeda >= 0:
+    if request.method=='POST' and nome != '' and senha != '' and qtdMoeda >= 0.0:
         objeto = Cliente(nome=nome, senha=senha, qtdMoeda=qtdMoeda)
         db.session.add(objeto)
         db.session.commit()
@@ -86,25 +86,25 @@ def UmCliente(id):
         objeto = Cliente.query.get(id)
         return jsonify(objeto)
     else:
-        return jsonify(['Method Not Allowed'])
+        return jsonify(['Method Not Allowed']), 400
 
 # Atualiza informações sobre o cliente
-@app.route('/cliente/<int:id>/<int:qtdMoeda>', methods=["POST"])
+@app.route('/cliente/<int:id>/<float:qtdMoeda>', methods=["POST"])
 def EditarCliente(id, qtdMoeda):
     if request.method=='POST':
         try:
             cliente = Cliente.query.filter_by(id=id).first()
-            db.session.commit()
             cliente.qtdMoeda = qtdMoeda
             db.session.commit()
-            return jsonify(cliente)
+            return jsonify(['Alteração feita com sucesso'])
         except Exception as e:
             data={
                 "message": "Atualização não realizada"
             }
             return jsonify(data)
+
     else:
-        return jsonify(['Method Not Allowed'])
+        return jsonify(['Method Not Allowed']), 400
 
 # Apaga cliente pelo ID
 @app.route('/cliente/<int:id>', methods = ['DELETE'])
@@ -113,14 +113,13 @@ def ApagarCliente(id):
         objeto = Cliente.query.get(id)
         db.session.delete(objeto)
         db.session.commit()
-
         data={
             "message": "Cliente Deletado com Sucesso"
         }
 
         return jsonify(data)
     else:
-        return jsonify(['Method Not Allowed'])
+        return jsonify(['Method Not Allowed']), 400
 
 #################
 #   -Seletor-   #
@@ -130,8 +129,8 @@ def ApagarCliente(id):
 @app.route('/seletor', methods = ['GET'])
 def ListarSeletor():
     if(request.method == 'GET'):
-        produtos = Seletor.query.all()
-        return jsonify(produtos)
+        seletores = Seletor.query.all()
+        return jsonify(seletores)  
 
 # Registra um seletor <-- !!!
 @app.route('/seletor/<string:nome>/<string:ip>', methods = ['POST'])
@@ -142,16 +141,16 @@ def InserirSeletor(nome, ip):
         db.session.commit()
         return jsonify(objeto)
     else:
-        return jsonify(['Method Not Allowed'])
+        return jsonify(['Method Not Allowed']), 400
 
 # Devolve um seletor pelo ID
 @app.route('/seletor/<int:id>', methods = ['GET'])
 def UmSeletor(id):
     if(request.method == 'GET'):
-        produto = Seletor.query.get(id)
-        return jsonify(produto)
+        seletor = Seletor.query.get(id)
+        return jsonify(seletor)
     else:
-        return jsonify(['Method Not Allowed'])
+        return jsonify(['Method Not Allowed']), 400
 
 # Atualizar dados de um seletor
 @app.route('/seletor/<int:id>/<string:nome>/<string:ip>', methods=["POST"])
@@ -160,19 +159,19 @@ def EditarSeletor(id, nome, ip):
         try:
             varNome = nome
             varIp = ip
-            validador = Seletor.query.filter_by(id=id).first()
+            seletor = Seletor.query.filter_by(id=id).first()
             db.session.commit()
-            validador.nome = varNome
-            validador.ip = varIp
+            seletor.nome = varNome
+            seletor.ip = varIp
             db.session.commit()
-            return jsonify(validador)
+            return jsonify(seletor)
         except Exception as e:
             data={
                 "message": "Atualização não realizada"
             }
             return jsonify(data)
     else:
-        return jsonify(['Method Not Allowed'])
+        return jsonify(['Method Not Allowed']), 400
 
 # Delete um seletor
 @app.route('/seletor/<int:id>', methods = ['DELETE'])
@@ -188,7 +187,7 @@ def ApagarSeletor(id):
 
         return jsonify(data)
     else:
-        return jsonify(['Method Not Allowed'])
+        return jsonify(['Method Not Allowed']), 400
 
 ##############
 #   -Hora-   #
@@ -212,42 +211,22 @@ def ListarTransacoes():
         transacoes = Transacao.query.all()
         return jsonify(transacoes)
 
-# Retorna todas as transações de um usuario específico <-- !!!
-@app.route('/transacoes/<int:remetente_id>', methods=['GET'])
-def TransacoesPorRemetente(remetente_id):
-    if request.method == 'GET':
-        transacoes = Transacao.query.filter_by(remetente=remetente_id).all()
-        if not transacoes:
-            return jsonify({"error": "Nenhuma transação encontrada para este remetente"}), 404
-        return jsonify([transacao.to_dict() for transacao in transacoes])
-    else:
-        return jsonify({"error": "Method Not Allowed"}), 405
-
 # Cria uma transação e envia ela pra pros seletores <-- !!!
-@app.route('/transacoes/<int:remetente>/<int:recebedor>/<int:valor>', methods = ['POST'])
-def CriaTransacao(remetente, recebedor, valor):
+@app.route('/transacoes/<int:rem>/<int:reb>/<int:valor>', methods = ['POST'])
+def CriaTransacao(rem, reb, valor):
     if request.method=='POST':
-        objeto = Transacao(remetente=remetente, recebedor=recebedor,valor=valor,status=0)
+        objeto = Transacao(remetente=rem, recebedor=reb,valor=valor,status=0,horario=datetime.now())
         db.session.add(objeto)
         db.session.commit()
-        
-        objeto_json = {
-            'id': objeto.id,
-            'remetente': objeto.remetente,
-            'recebedor': objeto.recebedor,
-            'valor': objeto.valor,
-            'horario': objeto.horario,
-            'status': objeto.status
-        }
-  
-        seletores = Seletor.query.all()
-        for i in seletores:
-            url = seletores[i].ip + '/transacao/'
-            request.post(url, data=jsonify(objeto_json))
 		
-        return jsonify(objeto_json)
+        seletores = Seletor.query.all()
+        for seletor in seletores:
+            #Implementar a rota /localhost/<ipSeletor>/transacoes
+            url = 'http://' + seletor.ip + '/transacoes/'
+            requests.post(url, data=jsonify(objeto))
+        return jsonify(objeto)
     else:
-        return jsonify(['Method Not Allowed'])
+        return jsonify(['Method Not Allowed']), 400
 
 # Retorna todas as transações de um usuario pelo ID <-- !!!
 @app.route('/transacoes/<int:id>', methods = ['GET'])
@@ -256,10 +235,10 @@ def UmaTransacao(id):
         objeto = Transacao.query.get(id)
         return jsonify(objeto)
     else:
-        return jsonify(['Method Not Allowed'])
+        return jsonify(['Method Not Allowed']), 400
 
 # Atualiza os dados de uma transação pelo ID <-- !!!
-@app.route('/transactions/<int:id>/<int:status>', methods=["POST"])
+@app.route('/transacoes/<int:id>/<int:status>', methods=["POST"])
 def EditaTransacao(id, status):
     if request.method=='POST':
         try:
@@ -275,7 +254,7 @@ def EditaTransacao(id, status):
             }
             return jsonify(data)
     else:
-        return jsonify(['Method Not Allowed'])
+        return jsonify(['Method Not Allowed']), 400
 
 @app.errorhandler(404)
 def page_not_found(error):
@@ -285,4 +264,4 @@ if __name__ == "__main__":
 	with app.app_context():
 		db.create_all()
     
-app.run(host='0.0.0.0', debug=True, port=5002)
+app.run(host='0.0.0.0', debug=True)

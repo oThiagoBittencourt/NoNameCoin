@@ -3,22 +3,18 @@ from flask import Flask
 import os
 from .Controller import Connector
 from app import Services
-from datetime import datetime, timedelta, timezone
-
-BRST = timezone(timedelta(hours=-3))  # Set standard time
+from .Controller.Utils import Utils
 
 class App(Flask):
 
     def __init__(self, *args, **kwargs):
         super(App, self).__init__(*args, **kwargs)
         self.url = 'http://localhost:5002'
+        self.port = Utils.ramdom_port()
 
     def init_app(self):
-        data = {
-            "validator_user" : "123",
-            "validator_password" : "Gesonel",
-            "validator_balance" : 100000.00
-        }
+        data = Utils.create_validator()
+        data['port'] = self.port
             
         response_register = Connector.register_validator(data,self.url)
         
@@ -33,8 +29,6 @@ class App(Flask):
 def create_app():
     app = App(__name__)
     app.init_app()
+    print(app.port)
+    app.run(debug=True, use_reloader=False, port=app.port)
     return app
-
-
-        
-    

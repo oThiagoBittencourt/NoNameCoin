@@ -1,0 +1,26 @@
+BANCO COMENTADO
+
+// Em caso de erro ao realizar uma operação, no caso os elses do tipo de metodo, eu adiciono após o jsonify o 400
+
+em class Client, foi alterado o tipo da senha, que estava em int, porém na teoria era para ser string.
+
+Em class Client troco o tipo de qtdMoeda de int parqa float, pois trabalhamos com dinheiro e porcentagens, isso foi trocado também em todas as funcoes onde estava como int.
+
+em class Transacao, modifiquei o horario para que seja possivel utilizar a parte de datetime, pois estavam ocorrendo erros.
+
+em InserirCliente foi mudada a qtdMoeda, que na verificação se comportava como uma string, porém este é um float.
+qtdMoeda >= 0.0:
+antigo:  qtdMoeda != '':
+
+em EditarCliente ele requisitava qtdMoedas, entretanto não existe qtdMoedas, mas sim qtdMoeda, então realizei essas alterações no nome.
+
+
+em ListarSeletor, troquei o nome da variavel, para 'seletores', pois não faz sentido a variavel se chamar 'produtos'.
+
+
+em UmSeletor, troquei o nome da variavel, para 'seletor', pois não faz sentido a variavel se chamar 'produto'.
+
+Em EditarSeletor troquei  troquei o nome da variavel, para 'seletor', pois não faz sentido a variavel se chamar 'validador', já que está é gravada somente no seletor, então não tem o porque dela estar no banco.
+
+
+

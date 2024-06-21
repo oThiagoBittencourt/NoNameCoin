@@ -5,7 +5,12 @@ import requests
 
 def Transaction(value:float, sender_id:str, sender_balance:float, time:datetime):
     validators = select_validator()
-    response = 1
+    if validators:
+        responses = {}
+        for validator in validators:
+            response = requests.post('http://' + validator.ip + ':' + validator.port + '/validador/transaction')
+            responses[validator.user] = response['response']
+            print(response['response'])
 
 def is_rate_limited(sender_id:str, time:datetime):
     return transaction_register_controller(sender_id, time)

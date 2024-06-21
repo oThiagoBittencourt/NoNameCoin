@@ -4,8 +4,8 @@ import random
 import time
 
 # URL do endpoint Flask
-endpoint_clientes = 'http://localhost:5002/cliente'
-endpoint_transacoes = 'http://localhost:5002/transacoes/'
+endpoint_clientes = 'http://localhost:5000/cliente'
+endpoint_transacoes = 'http://localhost:5000/transacoes/'
 
 # Função para buscar a lista de clientes
 def obter_lista_clientes():

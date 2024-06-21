@@ -1,5 +1,6 @@
 from Controller.DBController import ValidatorDB
 from Controller import TransactionController
+from Controller.Connector import Connector
 from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required
 import base64
@@ -13,6 +14,15 @@ db = ValidatorDB()
 # Configuração da chave secreta para assinar os tokens JWT
 app.config['JWT_SECRET_KEY'] = base64.b64encode(os.urandom(64)).decode('utf-8')
 jwt = JWTManager(app)
+
+#######################
+# -INITIALIZE APP- #
+#######################
+
+def initialize_app():
+    with app.app_context():
+        connector = Connector() 
+        connector.register_selector(selector_ip='127.0.0.1:5002', name='PixVulture')
 
 ###############
 # -VALIDADOR- #
@@ -47,8 +57,8 @@ def connect():
 
         validator_user = request.json.get('validator_user', None)
         validator_password = request.json.get('validator_password', None)
-        client_ip = request.remote_addr
-        client_port = request.environ.get('REMOTE_PORT')
+        client_ip = request.json.get('validator_password', None)
+        client_port = request.json.get('port', None)
 
         if not validator_user or not validator_password:
             return jsonify({"msg": "Missing Variables"}), 400
@@ -64,7 +74,7 @@ def connect():
 @app.route('/seletor/time', methods=['GET'])
 @jwt_required()
 def time():
-    url = 'http://127.0.0.1:5002/hora'
+    url = 'http://127.0.0.1:5000/hora'
     response = requests.get(url)
     return jsonify({"time": response.json()}), 200
 
@@ -111,4 +121,5 @@ def transaction():
         return jsonify({"msg": "Error!"}), 400
 
 if __name__ == '__main__':
-    app.run()
+    initialize_app()
+    app.run(port=5002)
