@@ -57,7 +57,7 @@ def connect():
 
         validator_user = request.json.get('validator_user', None)
         validator_password = request.json.get('validator_password', None)
-        client_ip = request.json.get('validator_password', None)
+        client_ip = request.remote_addr
         client_port = request.json.get('port', None)
 
         if not validator_user or not validator_password:

@@ -2,6 +2,8 @@ import datetime
 from . import Connector
 import os
 
+url = 'http://localhost:5002'
+
 #verificação de saldo da conta
 def verify_balance(balance, value, tax):
     #verifica se o saldo da conta tem dinheiro para ser enviado
@@ -12,7 +14,7 @@ def verify_balance(balance, value, tax):
 #verificação do tempo da transação
 def verify_transaction_time(transaction_time, last_transaction_time):
     #instancia uma variavel que tem o valor do timestamp atual
-    response = Connector.time(os.environ.get('access_token'))
+    response = Connector.time(os.environ.get('access_token'), url)
     if response.status_code != 200:
         return 2
     #pega os dados que estão em string e converte em datetime
@@ -30,7 +32,7 @@ def verify_transaction_time(transaction_time, last_transaction_time):
     return 1
 
 def verify_ratelimited(user_id, time):
-    rate_limit = Connector.ratelimited({'user_id' : user_id, 'time' : time}, os.environ.get('access_token'))
+    rate_limit = Connector.ratelimited({'user_id' : user_id, 'time' : time}, os.environ.get('access_token'), url)
     return rate_limit
 
 def Validator(data):

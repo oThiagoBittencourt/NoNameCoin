@@ -15,15 +15,17 @@ class App(Flask):
     def init_app(self):
         data = Utils.create_validator()
         data['port'] = self.port
-            
+        
+        
         response_register = Connector.register_validator(data,self.url)
         
         if(response_register.status_code == 200 or response_register.status_code == 409):    
             response_connect = Connector.connect(data, self.url)
             
             if(response_connect.status_code == 200 or response_connect.status_code == 409):
-                os.environ['access_token'] = response_connect.json().get('access_token')
-                self.config['access_token'] = os.environ.get('access_token')
+                environ_name = data['validator_user'] + '_access_token'
+                os.environ[environ_name] = response_connect.json().get('access_token')
+                self.config['access_token'] = os.environ.get(environ_name)
                 Services.register_routes(self)
                 
 def create_app():
