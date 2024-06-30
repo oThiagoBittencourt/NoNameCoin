@@ -29,11 +29,12 @@ class Seletor(db.Model):
     id: int
     nome: str
     ip: str
+    qtdMoeda: float
     
     id = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(20), unique=False, nullable=False)
     ip = db.Column(db.String(15), unique=False, nullable=False)
-
+    qtdMoeda = db.Column(db.Float, unique=False, nullable=False)
 @dataclass
 class Transacao(db.Model):
     id: int
@@ -153,16 +154,18 @@ def UmSeletor(id):
         return jsonify(['Method Not Allowed']), 400
 
 # Atualizar dados de um seletor
-@app.route('/seletor/<int:id>/<string:nome>/<string:ip>', methods=["POST"])
-def EditarSeletor(id, nome, ip):
+@app.route('/seletor/<int:id>/<string:nome>/<string:ip>/<float:qtdMoeda>', methods=["POST"])
+def EditarSeletor(id, nome, ip, qtdMoeda):
     if request.method=='POST':
         try:
             varNome = nome
             varIp = ip
+            varQtdMoeda = qtdMoeda
             seletor = Seletor.query.filter_by(id=id).first()
             db.session.commit()
             seletor.nome = varNome
             seletor.ip = varIp
+            seletor.qtdMoeda = varQtdMoeda
             db.session.commit()
             return jsonify(seletor)
         except Exception as e:
@@ -218,12 +221,12 @@ def CriaTransacao(rem, reb, valor):
         objeto = Transacao(remetente=rem, recebedor=reb,valor=valor,status=0,horario=datetime.now())
         db.session.add(objeto)
         db.session.commit()
-		
         seletores = Seletor.query.all()
         for seletor in seletores:
             #Implementar a rota /localhost/<ipSeletor>/transacoes
             url = 'http://' + seletor.ip + '/transacoes/'
-            requests.post(url, data=jsonify(objeto))
+            objetos_transacao = {'objeto': objeto, 'seletor': {'ip':seletor.ip, 'nome': seletor.nome, 'id': seletor.id, 'qtdMoeda': seletor.qtdMoeda}}
+            requests.post(url, data=jsonify(objetos_transacao))
         return jsonify(objeto)
     else:
         return jsonify(['Method Not Allowed']), 400

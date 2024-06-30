@@ -71,8 +71,9 @@ class ValidatorDB:
     def find_validator_by_user(self, user:str):
         return self.db.search(self.Validator.user == user)
     
-    def update_validator(self, user:str, password:str, ip:str, port:int, balance:float, flags:int, bans:int, status:str):
-        self.db.update({'user': user, 'password': password, 'balance': balance,'ip': ip, 'port': port, 'flags': flags, 'bans': bans, 'status': status}, self.Validator.user == user)
+    def update_validator_balance(self, user:str, new_balance:float):
+            new_balance = self.Validator.balance + new_balance
+            self.db.update({'user': user, 'balance': new_balance}, self.Validator.user == user)
 
     def remove_validator_by_id(self, user:str):
         self.db.remove(self.Validator.user == user)

@@ -4,7 +4,7 @@ from Controller.ValidatorSelector import select_validator
 import datetime
 import requests
 
-def Transaction(value:float, sender_id:str, sender_balance:float, time:datetime):
+def Transaction(value:float, sender_id:str, sender_balance:float, time:datetime, seletor:dict):
     response = 0
     validators = select_validator()
     if validators:
@@ -48,3 +48,15 @@ def transaction_register_controller(sender_id:str, time:datetime):
         if len(recent_requests) >= MAX_REQUESTS:
             return True
     return False
+
+
+
+def share_profits(selector_profit: float, validators_profit: float, validators, seletor):
+    for validator in validators:
+        profit = validators_profit / len(validators)
+        ValidatorDB.update_validator_balance(user=validator, new_balance=profit)
+    selector_profit = seletor['qtdMoeda'] + selector_profit
+    url_seletor = f'/seletor/{seletor['id']}/{seletor['nome']}/{seletor['ip']}/{selector_profit}'
+    requests.post(url_seletor)
+
+    pass
