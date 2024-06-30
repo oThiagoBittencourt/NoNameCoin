@@ -31,6 +31,5 @@ class App(Flask):
 def create_app():
     app = App(__name__)
     app.init_app()
-    print(app.port)
     app.run(debug=True, use_reloader=False, port=app.port)
     return app

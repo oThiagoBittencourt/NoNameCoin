@@ -38,7 +38,7 @@ class ValidatorDB:
             sequence = result[0]['sequence']
             self.db.update({'sequence': sequence + 1}, self.Validator.user == user)
 
-    def find_validator_by_id(self, user:str):
+    def find_validator_by_user(self, user:str):
         return self.db.search(self.Validator.user == user)
     
     def update_validator(self, user:str, password:str, ip:str, port:int, balance:float, flags:int, bans:int, status:str):

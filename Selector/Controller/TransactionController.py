@@ -1,4 +1,5 @@
 from .Connector import Connector
+from Controller.DBController import ValidatorDB
 from Controller.ValidatorSelector import select_validator
 import datetime
 import requests
@@ -8,8 +9,9 @@ def Transaction(value:float, sender_id:str, sender_balance:float, time:datetime)
     if validators:
         responses = {}
         for validator in validators:
-            response = requests.post('http://' + validator.ip + ':' + validator.port + '/validador/transaction')
-            responses[validator.user] = response['response']
+            user_validator = ValidatorDB.find_validator_by_user(validator)
+            response = requests.post('http://' + user_validator.ip + ':' + user_validator.port + '/validador/transaction')
+            responses[user_validator.user] = response['response']
             print(response['response'])
 
 def is_rate_limited(sender_id:str, time:datetime):
