@@ -18,6 +18,10 @@ def select_validator():
         ValidatorDB.update_sequence(validator)
         # Definir Status como "working"
         ValidatorDB.change_status(validator, "working")
+    # Limpar de todos os outros que não foram selecionados
+    validators_timeout = ValidatorDB.get_all_validators_timeout()
+    for validator_timeout in validators_timeout:
+        ValidatorDB.update_sequence(validator_timeout, True)
     return selected_validators
 
 def choice_validators_thread(num_selections, timeout, result_container, validators_percentage):

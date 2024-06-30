@@ -5,14 +5,35 @@ import datetime
 import requests
 
 def Transaction(value:float, sender_id:str, sender_balance:float, time:datetime):
+    response = 0
     validators = select_validator()
     if validators:
-        responses = {}
+        validator_responses = {}
         for validator in validators:
             user_validator = ValidatorDB.find_validator_by_user(validator)
-            response = requests.post('http://' + user_validator.ip + ':' + user_validator.port + '/validador/transaction')
-            responses[user_validator.user] = response['response']
-            print(response['response'])
+            validator_response = requests.post('http://' + user_validator.ip + ':' + user_validator.port + '/validador/transaction')
+            validator_responses[validator] = validator_response['response']
+        # {Thiago: 1, Gabriel: 1, Gal: 2}
+        result, users = check_users(validator_responses)
+        response = result
+        if (response is 1):
+            # Função do Gabriel
+            pass
+        for validator in validators:
+            if validator not in users:
+                ValidatorDB.add_flag_validator(validator)
+            else:
+                ValidatorDB.increment_transactions(validator)
+    return response
+
+def check_users(dictionary:dict):
+    count = {0: [], 1: [], 2: []}
+    for user, number in dictionary.items():
+        count[number].append(user)
+    for number, users in count.items():
+        if len(users) > len(dictionary) / 2:
+            return number, users
+    return 2, list(dictionary.keys())
 
 def is_rate_limited(sender_id:str, time:datetime):
     return transaction_register_controller(sender_id, time)

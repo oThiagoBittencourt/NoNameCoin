@@ -26,6 +26,11 @@ class ValidatorDB:
         online_validators = {record['user']: {'balance': record['balance'], 'flags': record['flags']} for record in results}
         return online_validators
     
+    def get_all_validators_timeout(self):
+        results = self.db.search(self.Validator.sequence >= 5)
+        online_validators = [record['user'] for record in results]
+        return online_validators
+    
     def change_status(self, user:str, status:str):
         self.db.update({'status': status}, self.Validator.user == user)
     
@@ -37,6 +42,31 @@ class ValidatorDB:
                 return
             sequence = result[0]['sequence']
             self.db.update({'sequence': sequence + 1}, self.Validator.user == user)
+        return
+    
+    def increment_transactions(self, user:str):
+        result = self.db.search(self.Validator.user == user)
+        if result:
+            transactions = result[0]['transactions']
+            if (transactions < 9999):
+                self.db.update({'transactions': transactions + 1}, self.Validator.user == user)
+                return
+            flags = result[0]['flags']
+            if (flags > 0):
+                self.db.update({'transactions': 0, 'flags': flags - 1}, self.Validator.user == user)
+                return
+            self.db.update({'transactions': 0}, self.Validator.user == user)
+        return
+    
+    def add_flag_validator(self, user:str):
+        validator = self.db.search(self.Validator.user == user)
+        if validator:
+            flags = validator[0]['flags']
+            if validator[0]['flags'] > 2:
+                bans = validator[0]['bans']
+                self.db.update({'flags': 0, 'bans': bans + 1, 'status': 'banned', 'balance': 0}, self.Validator.user == user)
+                return
+            self.db.update({'flags': flags + 1}, self.Validator.user == user)
 
     def find_validator_by_user(self, user:str):
         return self.db.search(self.Validator.user == user)

@@ -1,7 +1,6 @@
 import os
 import requests
 
-
 def register_validator(data, ip):
     url = f'{ip}/seletor/register'
     response = requests.post(url, json=data)
