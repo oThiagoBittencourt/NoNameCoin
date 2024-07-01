@@ -72,29 +72,14 @@ class ValidatorDB:
         return self.db.search(self.Validator.user == user)
     
     def update_validator_balance(self, user:str, new_balance:float):
-            new_balance = self.Validator.balance + new_balance
-            self.db.update({'user': user, 'balance': new_balance}, self.Validator.user == user)
+            validator = self.db.search(self.Validator.user == user)
+            if validator:
+                balance = validator[0]['balance']
+                self.db.update({'balance': balance + new_balance}, self.Validator.user == user)
+            return
 
     def remove_validator_by_id(self, user:str):
         self.db.remove(self.Validator.user == user)
     
     def close(self):
         self.db.close()
-
-"""
-class transactionsDB:
-    def get_user_requests(self, user_id):
-        return self.db.search(self.Transaction.user_id == user_id)
-
-    def filter_recent_requests(self, user_requests, current_time, TIME_WINDOW):
-        return [req['timestamp'] for req in user_requests if current_time - req['timestamp'] < TIME_WINDOW]
-
-    def update_user_requests(self, user_id, recent_requests, current_time):
-        self.db.remove(self.Transaction.user_id == user_id)
-        for timestamp in recent_requests:
-            self.db.insert({'user_id': user_id, 'timestamp': timestamp})
-        self.db.insert({'user_id': user_id, 'timestamp': current_time})
-
-    def add_user_request(self, user_id, current_time):
-        self.db.insert({'user_id': user_id, 'timestamp': current_time})
-"""

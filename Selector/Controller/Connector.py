@@ -18,4 +18,3 @@ class Connector:
         url = f'{self.url}/seletor/{name}/{selector_ip}'
         response = requests.post(url)
         return
-        

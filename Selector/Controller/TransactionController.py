@@ -49,14 +49,11 @@ def transaction_register_controller(sender_id:str, time:datetime):
             return True
     return False
 
-
-
 def share_profits(selector_profit: float, validators_profit: float, validators, seletor):
+    profit = validators_profit / len(validators)
     for validator in validators:
-        profit = validators_profit / len(validators)
         ValidatorDB.update_validator_balance(user=validator, new_balance=profit)
     selector_profit = seletor['qtdMoeda'] + selector_profit
     url_seletor = f'/seletor/{seletor['id']}/{seletor['nome']}/{seletor['ip']}/{selector_profit}'
     requests.post(url_seletor)
-
-    pass
+    return
