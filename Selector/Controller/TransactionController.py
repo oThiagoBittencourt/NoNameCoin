@@ -17,13 +17,15 @@ def Transaction(value:float, sender_id:str, sender_balance:float, time:datetime,
         result, users = check_users(validator_responses)
         response = result
         if (response is 1):
-            # Função do Gabriel
-            pass
+            selector_profit = value * (1/100)
+            validators_profit = value * (0.5/100)
+            share_profits(selector_profit, validators_profit, users, seletor)
         for validator in validators:
             if validator not in users:
                 ValidatorDB.add_flag_validator(validator)
             else:
                 ValidatorDB.increment_transactions(validator)
+        # Atualiza o status da transação no banco
     return response
 
 def check_users(dictionary:dict):
@@ -54,6 +56,6 @@ def share_profits(selector_profit: float, validators_profit: float, validators, 
     for validator in validators:
         ValidatorDB.update_validator_balance(user=validator, new_balance=profit)
     selector_profit = seletor['qtdMoeda'] + selector_profit
-    url_seletor = f'/seletor/{seletor['id']}/{seletor['nome']}/{seletor['ip']}/{selector_profit}'
+    url_seletor = f'http://127.0.0.1:5000/seletor/{seletor['id']}/{seletor['nome']}/{seletor['ip']}/{selector_profit}'
     requests.post(url_seletor)
     return
