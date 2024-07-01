@@ -60,6 +60,16 @@ def connect():
         client_ip = request.remote_addr
         client_port = request.json.get('port', None)
 
+        validator = ValidatorDB.find_validator_by_user(validator_user)
+        if validator.status == 'banned':
+            if validator.bans == 1:
+                value = 100
+            if validator.bans == 2:
+                value = 200 
+            if  validator.bans == 2:
+                return jsonify({"msg": "Banned"}), 430
+            return jsonify({"msg": "Banned", 'bans' : validator.bans, 'value' : value}), 420
+        
         if not validator_user or not validator_password:
             return jsonify({"msg": "Missing Variables"}), 400
             
@@ -71,6 +81,26 @@ def connect():
     except:
         return jsonify({"msg": "Error!"}), 400
 
+@app.route('/seletor/unban', methods=['POST'])
+def unban():
+    try:
+        if not request.is_json:
+            return jsonify({"msg": "Missing JSON in request"}), 400
+
+        validator_user = request.json.get('validator_user', None)
+        balance = request.json.get('balance', None)
+        value = request.json.get('value', None)
+        
+        if balance >=  value:
+            validator = ValidatorDB.find_validator_by_user(validator_user)
+            validator.status = 'offline'
+            validator.balance = value
+            return jsonify({"msg": "Unbanned!!"}), 200
+        else:
+            return jsonify({"msg": "Value less than required!!"}), 401
+    except:
+        return jsonify({"msg": "Error!"}), 400
+    
 @app.route('/seletor/time', methods=['GET'])
 @jwt_required()
 def time():

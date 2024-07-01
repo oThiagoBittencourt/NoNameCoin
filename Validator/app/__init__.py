@@ -21,7 +21,20 @@ class App(Flask):
         
         if(response_register.status_code == 200 or response_register.status_code == 409):    
             response_connect = Connector.connect(data, self.url)
-            
+            if response_connect.status_code == 430:
+                print('Permanently banned!')
+                os._exit(0)
+            if response_connect.status_code == 420:
+                while(True):
+                    print(f'You have been banned {response_connect.json().get('bans')} times.\nDeposit an amount greater than {response_connect.json().get('value')}:')
+                    balance = int(input())
+                    response_unban = Connector.unban({'balance' : balance, 'value' : response_connect.json().get('value'), 'validator_user' : data['validator_user']}, self.url)
+                    if response_unban.status_code == 200:
+                        print(response_unban.json().get('msg'))
+                        break
+                    print(response_unban.json().get('msg'))
+                        
+            response_connect = Connector.connect(data, self.url)
             if(response_connect.status_code == 200 or response_connect.status_code == 409):
                 environ_name = data['validator_user'] + '_access_token'
                 os.environ[environ_name] = response_connect.json().get('access_token')

@@ -31,3 +31,8 @@ def ratelimited(data, token, ip):
         return 1
     else:
         return 2
+
+def unban(data, ip):
+    url = f'{ip}/seletor/unban'
+    response = requests.post(data)
+    return response
