@@ -13,13 +13,7 @@ class App(Flask):
         self.port = Utils.ramdom_port()
 
     def init_app(self):
-        # data = Utils.create_validator()
-        data ={
-        'validator_user': 'seilaa',
-        'validator_password': 'seila',
-        'validator_balance': 600,
-        'port' : None
-        }
+        data = Utils.create_validator()
         data['port'] = self.port
         
         response_register = Connector.register_validator(data,self.url)
