@@ -134,6 +134,7 @@ def transaction():
         if not request.is_json:
             return jsonify({"msg": "Missing JSON in request"}), 400
         
+        transaction_id = request.json.get('transaction_id', None)
         transaction_value = request.json.get('transaction_value', None)
         transaction_sender_id = request.json.get('transaction_sender_id', None)
         transaction_sender_balance = request.json.get('transaction_sender_balance', None)
@@ -143,7 +144,7 @@ def transaction():
         if not transaction_sender_id or not transaction_value or not transaction_sender_balance or not transaction_time:
             return jsonify({"msg": "Missing Variables"}), 400
         
-        response = TransactionController.Transaction(transaction_value, transaction_sender_id, transaction_sender_balance, transaction_time, seletor)
+        response = TransactionController.Transaction(transaction_id, transaction_value, transaction_sender_id, transaction_sender_balance, transaction_time, seletor)
 
         return jsonify({"response": response}), 200
     except:

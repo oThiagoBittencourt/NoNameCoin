@@ -218,14 +218,15 @@ def ListarTransacoes():
 @app.route('/transacoes/<int:rem>/<int:reb>/<int:valor>', methods = ['POST'])
 def CriaTransacao(rem, reb, valor):
     if request.method=='POST':
-        objeto = Transacao(remetente=rem, recebedor=reb,valor=valor,status=0,horario=datetime.now())
+        time = datetime.now()
+        objeto = Transacao(remetente=rem, recebedor=reb,valor=valor,status=0,horario=time)
         db.session.add(objeto)
         db.session.commit()
+        remetente = Cliente.query.get(id)
         seletores = Seletor.query.all()
         for seletor in seletores:
-            #Implementar a rota /localhost/<ipSeletor>/transacoes
             url = 'http://' + seletor.ip + '/transacoes/'
-            objetos_transacao = {'objeto': objeto, 'seletor': {'ip':seletor.ip, 'nome': seletor.nome, 'id': seletor.id, 'qtdMoeda': seletor.qtdMoeda}}
+            objetos_transacao = {'transaction_id': objeto.id,'transaction_value': valor, 'transaction_sender_id': rem, 'transaction_sender_balance': remetente.qtdMoeda, 'transaction_time': time, 'seletor': {'ip':seletor.ip, 'nome': seletor.nome, 'id': seletor.id, 'qtdMoeda': seletor.qtdMoeda}}
             requests.post(url, data=jsonify(objetos_transacao))
         return jsonify(objeto)
     else:

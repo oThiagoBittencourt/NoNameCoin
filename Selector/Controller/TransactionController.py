@@ -4,16 +4,16 @@ from Controller.ValidatorSelector import select_validator
 import datetime
 import requests
 
-def Transaction(value:float, sender_id:str, sender_balance:float, time:datetime, seletor:dict):
+def Transaction(transaction_id:int, value:float, sender_id:str, sender_balance:float, time:datetime, seletor:dict):
     response = 0
     validators = select_validator()
     if validators:
         validator_responses = {}
         for validator in validators:
             user_validator = ValidatorDB.find_validator_by_user(validator)
-            validator_response = requests.post('http://' + user_validator.ip + ':' + user_validator.port + '/validador/transaction')
-            validator_responses[validator] = validator_response['response']
-        # {Thiago: 1, Gabriel: 1, Gal: 2}
+            json = {'value': value, 'sender_id': sender_id, 'sender_balance': sender_balance, 'time': time}
+            validator_response_transaction = Connector.request_transaction(f"http://{user_validator['ip']}:{user_validator['port']}", json)
+            validator_responses[validator] = validator_response_transaction.json().get('response')
         result, users = check_users(validator_responses)
         response = result
         if (response is 1):
@@ -25,7 +25,7 @@ def Transaction(value:float, sender_id:str, sender_balance:float, time:datetime,
                 ValidatorDB.add_flag_validator(validator)
             else:
                 ValidatorDB.increment_transactions(validator)
-        # Atualiza o status da transação no banco
+        Connector.edit_status_transaction(transaction_id=transaction_id, status=response)
     return response
 
 def check_users(dictionary:dict):
