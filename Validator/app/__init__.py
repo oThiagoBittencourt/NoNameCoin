@@ -13,9 +13,14 @@ class App(Flask):
         self.port = Utils.ramdom_port()
 
     def init_app(self):
-        data = Utils.create_validator()
+        # data = Utils.create_validator()
+        data ={
+        'validator_user': 'seilaa',
+        'validator_password': 'seila',
+        'validator_balance': 600,
+        'port' : None
+        }
         data['port'] = self.port
-        
         
         response_register = Connector.register_validator(data,self.url)
         
@@ -31,10 +36,9 @@ class App(Flask):
                     response_unban = Connector.unban({'balance' : balance, 'value' : response_connect.json().get('value'), 'validator_user' : data['validator_user']}, self.url)
                     if response_unban.status_code == 200:
                         print(response_unban.json().get('msg'))
+                        response_connect = Connector.connect(data, self.url)
                         break
                     print(response_unban.json().get('msg'))
-                        
-            response_connect = Connector.connect(data, self.url)
             if(response_connect.status_code == 200 or response_connect.status_code == 409):
                 environ_name = data['validator_user'] + '_access_token'
                 os.environ[environ_name] = response_connect.json().get('access_token')

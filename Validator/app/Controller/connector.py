@@ -34,5 +34,5 @@ def ratelimited(data, token, ip):
 
 def unban(data, ip):
     url = f'{ip}/seletor/unban'
-    response = requests.post(data)
+    response = requests.get(data)
     return response

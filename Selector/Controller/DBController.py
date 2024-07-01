@@ -72,7 +72,7 @@ class ValidatorDB:
     def find_validator_by_user(self, user:str):
         validator = self.db.search(self.Validator.user == user)
         if validator:
-            return validator
+            return validator[0]
         return
     
     def update_validator_balance(self, user:str, new_balance:float):
