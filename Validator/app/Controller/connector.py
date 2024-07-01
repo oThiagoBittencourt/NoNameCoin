@@ -1,5 +1,6 @@
 import os
 import requests
+import json
 
 def register_validator(data, ip):
     url = f'{ip}/seletor/register'
@@ -13,9 +14,7 @@ def connect(data, ip):
     
     if response.status_code == 200:
         os.environ['access_token'] = response.json().get('access_token')
-        return response
-    else:
-        print(f'{response.status_code}')
+    return response
 
 def time(data, ip):
     url = f'{ip}/seletor/time'
@@ -34,5 +33,5 @@ def ratelimited(data, token, ip):
 
 def unban(data, ip):
     url = f'{ip}/seletor/unban'
-    response = requests.get(data)
+    response = requests.get(url, json=data)
     return response

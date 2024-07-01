@@ -33,7 +33,10 @@ class App(Flask):
                 while(True):
                     print(f'You have been banned {response_connect.json().get('bans')} times.\nDeposit an amount greater than {response_connect.json().get('value')}:')
                     balance = int(input())
-                    response_unban = Connector.unban({'balance' : balance, 'value' : response_connect.json().get('value'), 'validator_user' : data['validator_user']}, self.url)
+                    data_unban = {'balance' : balance, 
+                                  'value' : response_connect.json().get('value'), 
+                                  'validator_user' : data['validator_user']}
+                    response_unban = Connector.unban(data_unban, self.url)
                     if response_unban.status_code == 200:
                         print(response_unban.json().get('msg'))
                         response_connect = Connector.connect(data, self.url)
