@@ -1,6 +1,5 @@
 import os
 import requests
-import json
 
 def register_validator(data, ip):
     url = f'{ip}/seletor/register'

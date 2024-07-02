@@ -24,9 +24,3 @@ class Connector:
         url = f'{self.url}/transacoes/{transaction_id}/{status}'
         requests.post(url)
         return
-    
-    # VALIDADOR
-    def request_transaction(url:str, json:dict):
-        url = f"{url}/validador/transaction"
-        response = requests.post(url, json=json)
-        return response

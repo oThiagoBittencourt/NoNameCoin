@@ -1,9 +1,8 @@
-from time import time
-from flask import Flask, request, redirect, render_template, jsonify
+from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from dataclasses import dataclass
-from datetime import date, datetime
+from datetime import datetime
 import requests
 
 app = Flask(__name__)

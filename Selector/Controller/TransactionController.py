@@ -8,19 +8,14 @@ db = ValidatorDB()
 connector = Connector()
 
 def Transaction(transaction_id:int, value:float, sender_id:str, sender_balance:float, time:str,last_time:str, seletor:dict):
-    print("Fez Requisição") ###
     response = 0
     validators = select_validator()
-    print("Selecionou Validadores: ") ###
-    print(validators) ###
     if validators:
         validator_responses = {}
         for validator in validators:
             user_validator = db.find_validator_by_user(validator)
             json = {'value': value, 'sender_id': sender_id, 'sender_balance': sender_balance, 'time': time, 'last_time': last_time, 'validator': validator}
             url = f"http://{user_validator['ip']}:{user_validator['port']}/validador/transaction"
-            #validator_response_transaction = connector.request_transaction(url=url, json=json)
-            #validator_responses[validator] = validator_response_transaction.json().get('response')
             transaction_response = requests.post(url, json=json)
             validator_responses[validator] = transaction_response.json().get('response')
         result, users = check_users(validator_responses)
@@ -34,7 +29,7 @@ def Transaction(transaction_id:int, value:float, sender_id:str, sender_balance:f
                 db.add_flag_validator(validator)
             else:
                 db.increment_transactions(validator)
-            db.change_status(validator, "online") # ARRUMAR DPS!!!
+            db.change_status(validator, "online")
         connector.edit_status_transaction(transaction_id=transaction_id, status=response)
     return response
 

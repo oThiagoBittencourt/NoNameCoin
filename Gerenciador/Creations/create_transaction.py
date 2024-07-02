@@ -1,12 +1,9 @@
 import requests
 import random
-import time
 
-# URL do endpoint Flask
 endpoint_clientes = 'http://localhost:5000/cliente'
 endpoint_transacoes = 'http://localhost:5000/transacoes/'
 
-# Função para buscar a lista de clientes
 def obter_lista_clientes():
     response = requests.get(endpoint_clientes)
     if response.status_code == 200:
@@ -15,12 +12,10 @@ def obter_lista_clientes():
         print(f"Erro ao obter a lista de clientes: {response.text}")
         return []
 
-# Função para criar uma transação aleatória entre dois clientes
 def criar_transacao_aleatoria(clientes):
     remetente = random.choice(clientes)
     recebedor = random.choice(clientes)
     
-    # Garante que remetente e recebedor são diferentes
     while recebedor == remetente:
         recebedor = random.choice(clientes)
     
@@ -32,7 +27,6 @@ def criar_transacao_aleatoria(clientes):
         'valor': valor
     }
 
-# Função para enviar transação para o endpoint Flask
 def enviar_transacao(transacao):
     response = requests.post(endpoint_transacoes + f"{transacao['remetente']}/{transacao['recebedor']}/{transacao['valor']}")
     if response.status_code == 200:
@@ -40,13 +34,11 @@ def enviar_transacao(transacao):
     else:
         print(f"Erro ao enviar a transação: {response.text}")
 
-# Função que cria e envia transações aleatórias
 def processar_transacoes(numero_de_transacoes, clientes):
     for _ in range(numero_de_transacoes):
         transacao = criar_transacao_aleatoria(clientes)
         enviar_transacao(transacao)
 
-# Função principal que cria e envia transações aleatórias
 def main(numero_de_transacoes):
     clientes = obter_lista_clientes()
     if not clientes:
@@ -56,5 +48,5 @@ def main(numero_de_transacoes):
     processar_transacoes(numero_de_transacoes, clientes)
 
 if __name__ == "__main__":
-    numero_de_transacoes = 3  # Número de transações a serem geradas
+    numero_de_transacoes = 10
     main(numero_de_transacoes)
