@@ -22,7 +22,7 @@ class ValidatorDB:
         return False
     
     def get_all_validators_online(self):
-        results = self.db.search((self.Validator.status == 'online') & (self.Validator.sequence < 5))
+        results = self.db.search((self.Validator.status == 'online') and (self.Validator.sequence < 5))
         online_validators = {record['user']: {'balance': record['balance'], 'flags': record['flags']} for record in results}
         return online_validators
     
@@ -37,10 +37,11 @@ class ValidatorDB:
     def update_sequence(self, user:str, RESET_MODE=False):
         result = self.db.search(self.Validator.user == user)
         if result:
+            user_record = result[0]
             if RESET_MODE:
                 self.db.update({'sequence': 0}, self.Validator.user == user)
                 return
-            sequence = result[0]['sequence']
+            sequence = user_record['sequence']
             self.db.update({'sequence': sequence + 1}, self.Validator.user == user)
         return
     

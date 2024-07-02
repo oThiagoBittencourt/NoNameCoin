@@ -1,5 +1,4 @@
 import requests
-import threading
 import random
 import time
 
@@ -46,7 +45,6 @@ def processar_transacoes(numero_de_transacoes, clientes):
     for _ in range(numero_de_transacoes):
         transacao = criar_transacao_aleatoria(clientes)
         enviar_transacao(transacao)
-        time.sleep(1)  # Espera um segundo entre cada transação
 
 # Função principal que cria e envia transações aleatórias
 def main(numero_de_transacoes):
@@ -55,17 +53,8 @@ def main(numero_de_transacoes):
         print("Nenhum cliente encontrado. Encerrando o programa.")
         return
     
-    # Dividir o trabalho em threads
-    threads = []
-    for _ in range(numero_de_transacoes):
-        t = threading.Thread(target=processar_transacoes, args=(1, clientes))
-        threads.append(t)
-        t.start()
-    
-    # Aguardar até que todas as threads terminem
-    for t in threads:
-        t.join()
+    processar_transacoes(numero_de_transacoes, clientes)
 
 if __name__ == "__main__":
-    numero_de_transacoes = 1  # Número de transações a serem geradas
+    numero_de_transacoes = 3  # Número de transações a serem geradas
     main(numero_de_transacoes)
