@@ -24,3 +24,13 @@ class Connector:
         url = f'{self.url}/transacoes/{transaction_id}/{status}'
         requests.post(url)
         return
+    
+    def ping_validator(self, ip, port):
+        try:
+            url = f"http://{ip}:{port}/validador/ping"
+            response = requests.get(url)
+            if response.status_code == 200:
+                return True
+            return False
+        except:
+            return False

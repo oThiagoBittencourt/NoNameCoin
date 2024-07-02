@@ -1,4 +1,7 @@
 from tinydb import TinyDB, Query
+from .Connector import Connector
+
+connector = Connector()
 
 class ValidatorDB:
     def __init__(self, db_path='Selector/TinyDB/validatorDB.json'):
@@ -23,8 +26,15 @@ class ValidatorDB:
     
     def get_all_validators_online(self):
         results = self.db.search((self.Validator.status == 'online') and (self.Validator.sequence < 5))
-        online_validators = {record['user']: {'balance': record['balance'], 'flags': record['flags']} for record in results}
+        online_validators = {}
+        for validator in results:
+            response = connector.ping_validator(validator['ip'], validator['port'])
+            if response:
+                online_validators[validator['user']] = {'balance': validator['balance'], 'flags': validator['flags']}
+            else:
+                self.db.update({'status': "offline"}, self.Validator.user == validator['user'])
         return online_validators
+    # /validador/ping
     
     def get_all_validators_timeout(self):
         results = self.db.search(self.Validator.sequence >= 5)
