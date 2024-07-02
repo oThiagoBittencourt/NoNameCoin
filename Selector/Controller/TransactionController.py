@@ -5,19 +5,24 @@ import datetime
 import requests
 
 db = ValidatorDB()
-dbc = Connector()
+connector = Connector()
 
-def Transaction(transaction_id:int, value:float, sender_id:str, sender_balance:float, time:datetime,last_time:datetime, seletor:dict):
+def Transaction(transaction_id:int, value:float, sender_id:str, sender_balance:float, time:str,last_time:str, seletor:dict):
+    print("Fez Requisição") ###
     response = 0
     validators = select_validator()
+    print("Selecionou Validadores: ") ###
+    print(validators) ###
     if validators:
         validator_responses = {}
         for validator in validators:
             user_validator = db.find_validator_by_user(validator)
             json = {'value': value, 'sender_id': sender_id, 'sender_balance': sender_balance, 'time': time, 'last_time': last_time, 'validator': validator}
-            url = f"http://{user_validator['ip']}:{user_validator['port']}"
-            validator_response_transaction = dbc.request_transaction(url= url, json = json)
-            validator_responses[validator] = validator_response_transaction.json().get('response')
+            url = f"http://{user_validator['ip']}:{user_validator['port']}/validador/transaction"
+            #validator_response_transaction = connector.request_transaction(url=url, json=json)
+            #validator_responses[validator] = validator_response_transaction.json().get('response')
+            transaction_response = requests.post(url, json=json)
+            validator_responses[validator] = transaction_response.json().get('response')
         result, users = check_users(validator_responses)
         response = result
         if (response is 1):
@@ -29,7 +34,8 @@ def Transaction(transaction_id:int, value:float, sender_id:str, sender_balance:f
                 db.add_flag_validator(validator)
             else:
                 db.increment_transactions(validator)
-        dbc.edit_status_transaction(transaction_id=transaction_id, status=response)
+            db.change_status(validator, "online") # ARRUMAR DPS!!!
+        connector.edit_status_transaction(transaction_id=transaction_id, status=response)
     return response
 
 def check_users(dictionary:dict):
@@ -45,7 +51,7 @@ def is_rate_limited(sender_id:str, time:datetime):
     return transaction_register_controller(sender_id, time)
 
 def transaction_register_controller(sender_id:str, time:datetime):
-    user_requests = dbc.get_user_requests(sender_id)
+    user_requests = connector.get_user_requests(sender_id)
     
     TIME_WINDOW = 60
     MAX_REQUESTS = 100

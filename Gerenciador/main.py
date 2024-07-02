@@ -201,7 +201,7 @@ def ApagarSeletor(id):
 def horario():
     if(request.method == 'GET'):
         objeto = datetime.now()
-        return jsonify(objeto)
+        return jsonify(str(objeto))
 
 ####################
 #   -Transações-   #

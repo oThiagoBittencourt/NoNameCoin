@@ -7,14 +7,18 @@ db = ValidatorDB()
 
 def select_validator():
     validators_online = db.get_all_validators_online()
+    print(f"1:{validators_online}")
     validators_percentage = calculate_percentage(validators_online)
+    print(f"2:{validators_percentage}")
     selected_validators = choice_validators(validators_percentage, 3)
+    print(f"3:{selected_validators}")
     result_container = {}
     if not selected_validators:
-        thread = threading.Thread(target=choice_validators_thread, args=(3, 60, result_container, validators_percentage))
-        thread.start()
-        thread.join()
-        selected_validators = result_container.get('selected_users', [])
+        pass
+        #thread = threading.Thread(target=choice_validators_thread, args=(3, 60, result_container, validators_percentage))
+        #thread.start()
+        #thread.join()
+        #selected_validators = result_container.get('selected_users', [])
     for validator in selected_validators:
         # Adicionar Sequencia
         db.update_sequence(validator)

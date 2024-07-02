@@ -31,76 +31,67 @@ def initialize_app():
 # Rota de login
 @app.route('/seletor/register', methods=['POST'])
 def register():
-    try:
-        if not request.is_json:
-            return jsonify({"msg": "Missing JSON in request"}), 400
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
 
-        validator_user = request.json.get('validator_user', None)
-        validator_password = request.json.get('validator_password', None)
-        validator_balance = request.json.get('validator_balance', None)
+    validator_user = request.json.get('validator_user', None)
+    validator_password = request.json.get('validator_password', None)
+    validator_balance = request.json.get('validator_balance', None)
 
-        if not validator_user or not validator_password or not validator_balance:
-            return jsonify({"msg": "Missing Variables"}), 400
-            
-        if not db.register_validator(user=validator_user, password=validator_password, balance=validator_balance):
-            return jsonify({"msg": "Already_used_user"}), 409
+    if not validator_user or not validator_password or not validator_balance:
+        return jsonify({"msg": "Missing Variables"}), 400
         
-        return jsonify({"msg": "Successfully_Registered"}), 200
-    except:
-        return jsonify({"msg": "Error!"}), 400
+    if not db.register_validator(user=validator_user, password=validator_password, balance=validator_balance):
+        return jsonify({"msg": "Already_used_user"}), 409
+    
+    return jsonify({"msg": "Successfully_Registered"}), 200
 
 @app.route('/seletor/connect', methods=['POST'])
 def connect():
-    try:
-        if not request.is_json:
-            return jsonify({"msg": "Missing JSON in request"}), 400
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
 
-        validator_user = request.json.get('validator_user', None)
-        validator_password = request.json.get('validator_password', None)
-        client_ip = request.remote_addr
-        client_port = request.json.get('port', None)
+    validator_user = request.json.get('validator_user', None)
+    validator_password = request.json.get('validator_password', None)
+    client_ip = request.remote_addr
+    client_port = request.json.get('port', None)
 
-        validator = db.find_validator_by_user(user=validator_user)
-        if validator['status'] == 'banned':
-            if validator['bans'] == 1:
-                value = 100
-            if validator['bans'] == 2:
-                value = 200 
-            if  validator['bans'] == 3:
-                return jsonify({"msg": "Banned"}), 430
-            return jsonify({"msg": "Banned", 'bans' : validator['bans'], 'value' : value}), 420
+    validator = db.find_validator_by_user(user=validator_user)
+    if validator['status'] == 'banned':
+        if validator['bans'] == 1:
+            value = 100
+        if validator['bans'] == 2:
+            value = 200 
+        if  validator['bans'] == 3:
+            return jsonify({"msg": "Banned"}), 430
+        return jsonify({"msg": "Banned", 'bans' : validator['bans'], 'value' : value}), 420
+    
+    if not validator_user or not validator_password:
+        return jsonify({"msg": "Missing Variables"}), 400
         
-        if not validator_user or not validator_password:
-            return jsonify({"msg": "Missing Variables"}), 400
-            
-        if not db.connect_validator(user=validator_user, password=validator_password, ip=client_ip, port=client_port):
-            return jsonify({"msg": "Connection_Error"}), 401
+    if not db.connect_validator(user=validator_user, password=validator_password, ip=client_ip, port=client_port):
+        return jsonify({"msg": "Connection_Error"}), 401
 
-        access_token = create_access_token(identity=validator_user)
-        return jsonify(access_token=access_token), 200
-    except:
-        return jsonify({"msg": "Error!"}), 400
+    access_token = create_access_token(identity=validator_user)
+    return jsonify(access_token=access_token), 200
 
 
 @app.route('/seletor/unban', methods=['GET'])
 def unban():
-    try:
-        if not request.is_json:
-            return jsonify({"msg": "Missing JSON in request"}), 400
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 400
 
-        validator_user = request.json.get('validator_user', None)
-        balance = request.json.get('balance', None)
-        value = request.json.get('value', None)
-        
-        if balance >=  value:
-            validator = db.find_validator_by_user(validator_user)
-            validator['status'] = 'offline'
-            validator['balance'] = value
-            return jsonify({"msg": "Unbanned!!"}), 200
-        else:
-            return jsonify({"msg": "Value less than required!!"}), 401
-    except:
-        return jsonify({"msg": "Error!"}), 400
+    validator_user = request.json.get('validator_user', None)
+    balance = request.json.get('balance', None)
+    value = request.json.get('value', None)
+    
+    if balance >=  value:
+        validator = db.find_validator_by_user(validator_user)
+        validator['status'] = 'offline'
+        validator['balance'] = value
+        return jsonify({"msg": "Unbanned!!"}), 200
+    else:
+        return jsonify({"msg": "Value less than required!!"}), 401
     
 @app.route('/seletor/time', methods=['GET'])
 @jwt_required()
@@ -115,11 +106,16 @@ def ratelimited():
     if not request.is_json:
             return jsonify({"msg": "Missing JSON in request"}), 400
 
-    user_id = request.json.get('user_id')
+    user_id = request.json.get('sender_id')
     time = request.json.get('time')
-    time = datetime.datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
+    time = datetime.datetime.strptime(time, "%Y-%m-%d %H:%M:%S.%f")
+
+    print(user_id)
+    print(time)
+    print(type(time))
 
     if not user_id or not time:
+        print("XIXI COCO") ###
         return jsonify({'error': 'user_id is required'}), 400
     
     if TransactionController.is_rate_limited(user_id, time):

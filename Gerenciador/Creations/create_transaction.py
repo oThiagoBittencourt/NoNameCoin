@@ -67,5 +67,5 @@ def main(numero_de_transacoes):
         t.join()
 
 if __name__ == "__main__":
-    numero_de_transacoes = 10  # Número de transações a serem geradas
+    numero_de_transacoes = 1  # Número de transações a serem geradas
     main(numero_de_transacoes)
