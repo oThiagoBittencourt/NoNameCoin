@@ -4,15 +4,19 @@ from Controller.ValidatorSelector import select_validator
 import datetime
 import requests
 
+db = ValidatorDB()
+dbc = Connector()
+
 def Transaction(transaction_id:int, value:float, sender_id:str, sender_balance:float, time:datetime,last_time:datetime, seletor:dict):
     response = 0
     validators = select_validator()
     if validators:
         validator_responses = {}
         for validator in validators:
-            user_validator = ValidatorDB.find_validator_by_user(validator)
+            user_validator = db.find_validator_by_user(validator)
             json = {'value': value, 'sender_id': sender_id, 'sender_balance': sender_balance, 'time': time, 'last_time': last_time, 'validator': validator}
-            validator_response_transaction = Connector.request_transaction(f"http://{user_validator['ip']}:{user_validator['port']}", json)
+            url = f"http://{user_validator['ip']}:{user_validator['port']}"
+            validator_response_transaction = dbc.request_transaction(url= url, json = json)
             validator_responses[validator] = validator_response_transaction.json().get('response')
         result, users = check_users(validator_responses)
         response = result
@@ -22,10 +26,10 @@ def Transaction(transaction_id:int, value:float, sender_id:str, sender_balance:f
             share_profits(selector_profit, validators_profit, users, seletor)
         for validator in validators:
             if validator not in users:
-                ValidatorDB.add_flag_validator(validator)
+                db.add_flag_validator(validator)
             else:
-                ValidatorDB.increment_transactions(validator)
-        Connector.edit_status_transaction(transaction_id=transaction_id, status=response)
+                db.increment_transactions(validator)
+        dbc.edit_status_transaction(transaction_id=transaction_id, status=response)
     return response
 
 def check_users(dictionary:dict):
@@ -41,7 +45,7 @@ def is_rate_limited(sender_id:str, time:datetime):
     return transaction_register_controller(sender_id, time)
 
 def transaction_register_controller(sender_id:str, time:datetime):
-    user_requests = Connector.get_user_requests(sender_id)
+    user_requests = dbc.get_user_requests(sender_id)
     
     TIME_WINDOW = 60
     MAX_REQUESTS = 100
@@ -54,7 +58,7 @@ def transaction_register_controller(sender_id:str, time:datetime):
 def share_profits(selector_profit: float, validators_profit: float, validators, seletor):
     profit = validators_profit / len(validators)
     for validator in validators:
-        ValidatorDB.update_validator_balance(user=validator, new_balance=profit)
+        db.update_validator_balance(user=validator, new_balance=profit)
     selector_profit = seletor['qtdMoeda'] + selector_profit
     url_seletor = f"http://127.0.0.1:5000/seletor/{seletor['id']}/{seletor['nome']}/{seletor['ip']}/{selector_profit}"
     requests.post(url_seletor)

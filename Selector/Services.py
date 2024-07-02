@@ -51,32 +51,35 @@ def register():
 
 @app.route('/seletor/connect', methods=['POST'])
 def connect():
-    if not request.is_json:
-        return jsonify({"msg": "Missing JSON in request"}), 400
+    try:
+        if not request.is_json:
+            return jsonify({"msg": "Missing JSON in request"}), 400
 
-    validator_user = request.json.get('validator_user', None)
-    validator_password = request.json.get('validator_password', None)
-    client_ip = request.remote_addr
-    client_port = request.json.get('port', None)
+        validator_user = request.json.get('validator_user', None)
+        validator_password = request.json.get('validator_password', None)
+        client_ip = request.remote_addr
+        client_port = request.json.get('port', None)
 
-    validator = db.find_validator_by_user(user=validator_user)
-    if validator['status'] == 'banned':
-        if validator['bans'] == 1:
-            value = 100
-        if validator['bans'] == 2:
-            value = 200 
-        if  validator['bans'] == 3:
-            return jsonify({"msg": "Banned"}), 430
-        return jsonify({"msg": "Banned", 'bans' : validator['bans'], 'value' : value}), 420
-    
-    if not validator_user or not validator_password:
-        return jsonify({"msg": "Missing Variables"}), 400
+        validator = db.find_validator_by_user(user=validator_user)
+        if validator['status'] == 'banned':
+            if validator['bans'] == 1:
+                value = 100
+            if validator['bans'] == 2:
+                value = 200 
+            if  validator['bans'] == 3:
+                return jsonify({"msg": "Banned"}), 430
+            return jsonify({"msg": "Banned", 'bans' : validator['bans'], 'value' : value}), 420
         
-    if not db.connect_validator(user=validator_user, password=validator_password, ip=client_ip, port=client_port):
-        return jsonify({"msg": "Connection_Error"}), 401
+        if not validator_user or not validator_password:
+            return jsonify({"msg": "Missing Variables"}), 400
+            
+        if not db.connect_validator(user=validator_user, password=validator_password, ip=client_ip, port=client_port):
+            return jsonify({"msg": "Connection_Error"}), 401
 
-    access_token = create_access_token(identity=validator_user)
-    return jsonify(access_token=access_token), 200
+        access_token = create_access_token(identity=validator_user)
+        return jsonify(access_token=access_token), 200
+    except:
+        return jsonify({"msg": "Error!"}), 400
 
 
 @app.route('/seletor/unban', methods=['GET'])
@@ -130,26 +133,25 @@ def ratelimited():
 
 @app.route('/transacoes', methods=['POST'])
 def transaction():
-    try:
-        if not request.is_json:
-            return jsonify({"msg": "Missing JSON in request"}), 400
-        
-        transaction_id = request.json.get('transaction_id', None)
-        transaction_value = request.json.get('transaction_value', None)
-        transaction_sender_id = request.json.get('transaction_sender_id', None)
-        transaction_sender_balance = request.json.get('transaction_sender_balance', None)
-        transaction_time = request.json.get('transaction_time', None)
-        last_transaction_time = request.json.get('last_transaction_time', None)
-        seletor = request.json.get('seletor', None)
+    # try:
+    if not request.is_json:
+        return jsonify({"msg": "Missing JSON in request"}), 450
+    
+    transaction_id = request.json.get('transaction_id', None)
+    transaction_value = request.json.get('transaction_value', None)
+    transaction_sender_id = request.json.get('transaction_sender_id', None)
+    transaction_sender_balance = request.json.get('transaction_sender_balance', None)
+    transaction_time = request.json.get('transaction_time', None)
+    last_transaction_time = request.json.get('last_transaction_time', None)
+    seletor = request.json.get('seletor', None)
 
-        if not transaction_sender_id or not transaction_value or not transaction_sender_balance or not transaction_time or not last_transaction_time:
-            return jsonify({"msg": "Missing Variables"}), 400
-        
-        response = TransactionController.Transaction(transaction_id, transaction_value, transaction_sender_id, transaction_sender_balance, transaction_time, last_transaction_time, seletor)
-
-        return jsonify({"response": response}), 200
-    except:
-        return jsonify({"msg": "Error!"}), 400
+    if not transaction_sender_id or not transaction_value or not transaction_sender_balance or not transaction_time or not last_transaction_time:
+        return jsonify({"msg": "Missing Variables"}), 410
+    
+    response = TransactionController.Transaction(transaction_id, transaction_value, transaction_sender_id, transaction_sender_balance, transaction_time, last_transaction_time, seletor)
+    return jsonify({"response": response}), 200
+    # except:
+    #     return jsonify({"msg": "Error!"}), 400
 
 if __name__ == '__main__':
     initialize_app()

@@ -222,24 +222,15 @@ def CriaTransacao(rem, reb, valor):
         objeto = Transacao(remetente=rem, recebedor=reb,valor=valor,status=0,horario=time)
         db.session.add(objeto)
         db.session.commit()
-        last_transaction = UmaTransacao(objeto.id - 1)
-        if last_transaction is None:
+        last_transaction = Transacao.query.get(objeto.id - 1)
+        if not last_transaction:
             last_transaction = objeto
         remetente = Cliente.query.get(rem)
         seletores = Seletor.query.all()
         for seletor in seletores:
-            url = 'http://' + seletor.ip + '/transacoes/'
-            objetos_transacao = {'transaction_id': objeto.id,'transaction_value': valor, 'transaction_sender_id': rem, 'transaction_sender_balance': remetente.qtdMoeda, 'transaction_time': time, 'last_transaction_time': last_transaction.horario , 'seletor': {'ip':seletor.ip, 'nome': seletor.nome, 'id': seletor.id, 'qtdMoeda': seletor.qtdMoeda}}
-            requests.post(url, data=jsonify(objetos_transacao))
-        return jsonify(objeto)
-    else:
-        return jsonify(['Method Not Allowed']), 400
-
-# Retorna todas as transações de um usuario pelo ID <-- !!!
-@app.route('/transacoes/<int:id>', methods = ['GET'])
-def UmaTransacao(id):
-    if(request.method == 'GET'):
-        objeto = Transacao.query.get(id)
+            url = 'http://' + seletor.ip + '/transacoes'
+            objetos_transacao = {'transaction_id': objeto.id,'transaction_value': valor, 'transaction_sender_id': rem, 'transaction_sender_balance': remetente.qtdMoeda, 'transaction_time': str(time), 'last_transaction_time': str(last_transaction.horario), 'seletor': {'ip':seletor.ip, 'nome': seletor.nome, 'id': seletor.id, 'qtdMoeda': seletor.qtdMoeda}}
+            requests.post(url, json=objetos_transacao)
         return jsonify(objeto)
     else:
         return jsonify(['Method Not Allowed']), 400
@@ -262,10 +253,6 @@ def EditaTransacao(id, status):
             return jsonify(data)
     else:
         return jsonify(['Method Not Allowed']), 400
-
-@app.errorhandler(404)
-def page_not_found(error):
-    return render_template('page_not_found.html'), 404
 
 if __name__ == "__main__":
 	with app.app_context():

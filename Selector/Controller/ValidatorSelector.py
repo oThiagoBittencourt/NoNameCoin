@@ -3,8 +3,10 @@ import random
 import threading
 import time
 
+db = ValidatorDB()
+
 def select_validator():
-    validators_online = ValidatorDB.get_all_validators_online()
+    validators_online = db.get_all_validators_online()
     validators_percentage = calculate_percentage(validators_online)
     selected_validators = choice_validators(validators_percentage, 3)
     result_container = {}
@@ -15,13 +17,13 @@ def select_validator():
         selected_validators = result_container.get('selected_users', [])
     for validator in selected_validators:
         # Adicionar Sequencia
-        ValidatorDB.update_sequence(validator)
+        db.update_sequence(validator)
         # Definir Status como "working"
-        ValidatorDB.change_status(validator, "working")
+        db.change_status(validator, "working")
     # Limpar de todos os outros que não foram selecionados
-    validators_timeout = ValidatorDB.get_all_validators_timeout()
+    validators_timeout = db.get_all_validators_timeout()
     for validator_timeout in validators_timeout:
-        ValidatorDB.update_sequence(validator_timeout, True)
+        db.update_sequence(validator_timeout, True)
     return selected_validators
 
 def choice_validators_thread(num_selections, timeout, result_container, validators_percentage):
