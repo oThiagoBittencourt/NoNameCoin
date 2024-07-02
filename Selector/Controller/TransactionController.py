@@ -4,14 +4,14 @@ from Controller.ValidatorSelector import select_validator
 import datetime
 import requests
 
-def Transaction(transaction_id:int, value:float, sender_id:str, sender_balance:float, time:datetime, seletor:dict):
+def Transaction(transaction_id:int, value:float, sender_id:str, sender_balance:float, time:datetime,last_time:datetime, seletor:dict):
     response = 0
     validators = select_validator()
     if validators:
         validator_responses = {}
         for validator in validators:
             user_validator = ValidatorDB.find_validator_by_user(validator)
-            json = {'value': value, 'sender_id': sender_id, 'sender_balance': sender_balance, 'time': time}
+            json = {'value': value, 'sender_id': sender_id, 'sender_balance': sender_balance, 'time': time, 'last_time': last_time, 'validator': validator}
             validator_response_transaction = Connector.request_transaction(f"http://{user_validator['ip']}:{user_validator['port']}", json)
             validator_responses[validator] = validator_response_transaction.json().get('response')
         result, users = check_users(validator_responses)
@@ -56,6 +56,6 @@ def share_profits(selector_profit: float, validators_profit: float, validators, 
     for validator in validators:
         ValidatorDB.update_validator_balance(user=validator, new_balance=profit)
     selector_profit = seletor['qtdMoeda'] + selector_profit
-    url_seletor = f'http://127.0.0.1:5000/seletor/{seletor['id']}/{seletor['nome']}/{seletor['ip']}/{selector_profit}'
+    url_seletor = f"http://127.0.0.1:5000/seletor/{seletor['id']}/{seletor['nome']}/{seletor['ip']}/{selector_profit}"
     requests.post(url_seletor)
     return

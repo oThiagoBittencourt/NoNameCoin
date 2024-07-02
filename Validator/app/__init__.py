@@ -25,7 +25,7 @@ class App(Flask):
                 os._exit(0)
             if response_connect.status_code == 420:
                 while(True):
-                    print(f'You have been banned {response_connect.json().get('bans')} times.\nDeposit an amount greater than {response_connect.json().get('value')}:')
+                    print(f"You have been banned {response_connect.json().get('bans')} times.\nDeposit an amount greater than {response_connect.json().get('value')}:")
                     balance = int(input())
                     data_unban = {'balance' : balance, 
                                   'value' : response_connect.json().get('value'), 
