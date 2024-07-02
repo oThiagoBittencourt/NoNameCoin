@@ -19,7 +19,7 @@ def gerar_cliente_aleatorio():
     return {
         'nome': nome,
         'senha': senha,
-        'qtdMoedas': int(qtdMoedas)
+        'qtdMoedas': float(qtdMoedas)
     }
 
 # Função para enviar o cliente para o endpoint
